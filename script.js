@@ -1,20 +1,26 @@
-//// First, create an object containing LatLng and population for each city.
-const cities = {
-  // important keys, unimportant values, for now
-  "Cambridge": 1,
-  "Oxford": 1,
+// TESTING
+var map = createAndAttachMap('map');
+
+// Test data.
+// Soon we should have some way to load data dynamically. That way, a deploy
+// just needs to add data.js or similar.
+
+// Interesting areas:
+// We'll draw a circle 1.6km wide around each of these. In the future, we should
+// be able to have a query and ask some geocoding service. For now, hardcode
+// coordinates.
+const interestingAreas = {
+  'Cambridge': {lat: 52.194401, lng: 0.137446},
+  'Cambridge North': {lat: 52.227446, lng: 0.156565},
 };
 
-const propertiesPerCity = {
-  "Cambridge": [
-    // Castle
-    {id: 1, loc: {lat: 51.752141, lng: -1.263379}},
-    // Natural History Museum
-    {id: 2, loc: {lat: 51.759101, lng: -1.255483}},
-    // Covered Market
-    {id: 3, loc: {lat: 51.753257, lng: -1.256685}},
+// Properties near each area. We might want to only show the ones on some areas.
+const propertiesPerArea = {
+  'Cambridge North': [
+    // "Baits Bite Lock"
+    {id: 1, loc: {lat: 52.237085, lng: 0.174802}},
   ],
-  "Oxford": [
+  'Cambridge': [
     // Norfolk Street Bakery
     {id: 4, loc: {lat: 52.195186, lng: 0.131626}},
     // Mathematical Bridge
@@ -24,6 +30,8 @@ const propertiesPerCity = {
   ],
 };
 
+// Properties not attached to any area (they're outside all of them, or we have
+// no explicit data for where they are other than coordinates)
 const unsortedProperties = [
   // Random place in "Chiltern Hills"
   {id: 7, loc: {lat: 51.651666, lng: -0.854828}},
@@ -32,73 +40,30 @@ const unsortedProperties = [
 ];
 
 // distances are in meters
-const maxDistanceToStation = 1600;
+const areaDiameter = 1600;
 const thresholdForMapAutozoom = 1;
 
-var g_map;
-var g_circles = {};
-var g_bounds = new google.maps.LatLngBounds();
+// Create a circle per area, make it easy to get to the objects later.
+var circles = new Map(
+    Object.entries(interestingAreas)
+        .map(([name, loc]) => [name, circleArea(map, loc, areaDiameter)]));
 
-function drawStationCircle(map, name, loc) {
-  g_circles[name] = new google.maps.Circle({
-    strokeColor: '#aa0000',
-    strokeOpacity: 0.5,
-    strokeWeight: 1,
-    fillColor: '#00aa00',
-    fillOpacity: 0.1,
-    map: map,
-    center: loc,
-    radius: maxDistanceToStation,
+// Fit the map to the circles we have
+var bounds = L.latLngBounds();
+for (const circle of circles.values()) {
+  bounds.extend(circle.getBounds());
+}
+map.fitBounds(bounds);
+
+// FIXME: Do we need these?
+var id2Marker = new Map();
+var area2Markers = new Map();
+
+for (const [area, props] of Object.entries(propertiesPerArea)) {
+  const areaMarkers = props.map(function(prop) {
+    const marker = addProperty(map, prop);
+    id2Marker.set(prop.id, marker);
+    return marker;
   });
-}
-
-function addStation(map, place) {
-  console.log(place.name);
-  var loc = place.geometry.location;
-  console.log(loc.toString());
-
-  drawStationCircle(map, place.name, loc);
-
-  // fitBounds() if the user didn't change the map center.
-  const distanceToMapCenter = google.maps.geometry.spherical.computeDistanceBetween(g_bounds.getCenter(), map.getCenter());
-  console.log("Distance: " + distanceToMapCenter);
-  // Initially, the bounds are empty. Don't try to measure distance to center if so.
-  const shouldFitBounds = g_bounds.isEmpty() || distanceToMapCenter < thresholdForMapAutozoom;
-
-  g_bounds.extend(loc);
-  if (shouldFitBounds) {
-    console.log("Calling fitBounds()");
-    map.fitBounds(g_bounds);
-  }
-}
-
-function placeCallback(results, maybe_ok) {
-  var res = results[0];
-  console.log(maybe_ok + ' result (' + results.length + '): ' + res.name);
-  addStation(g_map, res);
-}
-
-function initMap() {
-  console.log("Starting");
-  // Create the map.
-  g_map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 13,
-    center: {
-      lat: 0,
-      lng: 0
-    },
-    mapTypeId: 'hybrid'
-  });
-
-  var placeService = new google.maps.places.PlacesService(g_map);
-
-  // Send the queries
-  for (var city in cities) {
-    var req = {
-      query: city + ' station',
-      fields: ['name', 'geometry.location']
-    };
-    console.log("Requesting data for: " + city);
-    placeService.findPlaceFromQuery(req, placeCallback);
-  }
+  area2Markers.set(area, areaMarkers);
 }

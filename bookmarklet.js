@@ -83,8 +83,8 @@ function mergeToCommonFormat(pShortlist, pData) {
 
     price : {
       amount : pData.price.amount,
-      display : pData.price.displayPrices.displayPrice,
-      qual : pData.price.displayPrices.displayPriceQualifier,
+      display : pData.price.displayPrices[0].displayPrice,
+      qual : pData.price.displayPrices[0].displayPriceQualifier,
     },
 
     // Do we want the one to four images from the map data?

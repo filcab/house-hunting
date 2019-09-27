@@ -25,9 +25,11 @@ function circleArea(map, loc, diameter) {
   return circle;
 }
 
-function addProperty(map, p) {
+function addProperty(map, p, popupFunction) {
   // Add marker
   const marker = L.marker(p.loc);
+  marker.property = p;
+  marker.bindPopup(popupFunction);
   marker.addTo(map);
   // TODO: Set popup
   return marker;

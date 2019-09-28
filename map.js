@@ -12,8 +12,8 @@ function createAndAttachMap(divId) {
 }
 
 // Higher-level function to draw a circle around an "interesting area"
-function circleArea(map, loc, diameter) {
-  var circle = L.circle(loc, {
+function circleArea(map, name, loc, diameter) {
+  const circle = L.circle(loc, {
     color: '#a00',
     opacity: 0.5,
     weight: 1,
@@ -21,6 +21,7 @@ function circleArea(map, loc, diameter) {
     fillOpacity: 0.1,
     radius: diameter,
   });
+  circle.bindTooltip(name);
   circle.addTo(map);
   return circle;
 }
@@ -31,6 +32,10 @@ function addProperty(map, p, popupFunction) {
   marker.property = p;
   marker.bindPopup(popupFunction);
   marker.addTo(map);
-  // TODO: Set popup
   return marker;
+}
+
+function fitToMarkers(map, markers) {
+  const featureGroup = new L.featureGroup(markers);
+  map.fitBounds(featureGroup.getBounds());
 }

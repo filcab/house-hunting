@@ -47,6 +47,36 @@ function displayData(data) {
   document.body.appendChild(div);
 }
 
+function OnTheMarket() {
+function fetchId(id) {
+  var obj = fetch(`https://www.onthemarket.com/map/view-pin/?id=${id}`);
+  return obj.then(x => x.json());
+}
+
+function convertToCommon(p) {
+  var result = {
+    imgs: [p['cover-image']],
+    price: {display: p.price, qual: p['price-qualifier']},
+    agent: {phone: 'lol, OnTheMarket!'},
+    url: makeAbsoluteUrl(p['details-url']),
+    desc: p['property-title'],
+    loc: {lat: p.location.lat, lng: p.location.lon},
+    addr: p.display_address,
+    summary: 'OnTheMarket!'
+  };
+  return result;
+}
+
+function fetchIdToCommon(id) {
+  return fetchId(id).then(convertToCommon);
+}
+
+const propIds = dataLayer[0]['property-ids'];
+
+const objs = Promise.all(propIds.map(fetchIdToCommon));
+objs.then(JSON.stringify).then(displayData);
+}
+
 function RightMove() {
 // merge two properties with the same ID
 function mergeToCommonFormat(pShortlist, pData) {
@@ -170,6 +200,7 @@ mapProperties
 
 const functions = {
   'www.rightmove.co.uk': RightMove,
+  'www.onthemarket.com': OnTheMarket,
 };
 
 const fun = functions[window.location.host];

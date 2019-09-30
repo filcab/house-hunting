@@ -88,7 +88,7 @@ var map = createAndAttachMap('map');
 const areaDiameter = 1600;
 
 // Actual data (not committed)
-const dataFiles = ['data.json'];
+const dataFiles = ['data.json', 'data-otm.json'];
 const areas = ['areas.json'];
 // Test data, as an example
 const testFiles = ['test-data.json'];

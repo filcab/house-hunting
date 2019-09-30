@@ -2,6 +2,10 @@
 // TODO: Some properties might have been removed. Maybe add some warning messages for that.
 (function() {
 
+// Common utilities
+const baseUrl = new URL('/', window.location);
+const makeAbsoluteUrl = relativeUrl => `${baseUrl.href}${relativeUrl}`;
+
 // Create a div with a label + textarea with our data
 // The textarea element allows us to do a "select all" inside it easily
 function displayData(data) {
@@ -43,6 +47,7 @@ function displayData(data) {
   document.body.appendChild(div);
 }
 
+function RightMove() {
 // merge two properties with the same ID
 function mergeToCommonFormat(pShortlist, pData) {
   if (pData === undefined) {
@@ -63,7 +68,7 @@ function mergeToCommonFormat(pShortlist, pData) {
     status : pShortlist.status,
 
     // From map data (after fetching additional info)
-    url : pData.propertyUrl,
+    url : makeAbsoluteUrl(pData.propertyUrl),
     addr : pData.displayAddress,
     desc : pData.propertyTypeFullDescription,
     summary : pData.summary,
@@ -96,7 +101,7 @@ function mergeToCommonFormat(pShortlist, pData) {
 
       phone : pData.customer.contactTelephone,
       // this is weird in the shortlist
-      url : pData.customer.branchLandingPageUrl,
+      url : makeAbsoluteUrl(pData.customer.branchLandingPageUrl),
     },
   };
 }
@@ -161,4 +166,17 @@ mapProperties
     })
     .then(JSON.stringify)
     .then(displayData);
+}
+
+const functions = {
+  'www.rightmove.co.uk': RightMove,
+};
+
+const fun = functions[window.location.host];
+
+if (fun === undefined) {
+  alert(`Don't know what to do on this website: ${window.location.host}\nfunctions: ${functions}`);
+} else {
+  fun();
+}
 })()

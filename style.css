@@ -1,12 +1,78 @@
-/* Always set the map height explicitly to define the size of the div
- * element that contains the map. */
-#map {
-  height: 100%;
+* {
+  box-sizing: border-box;
 }
-/* Optional: Makes the sample page fill the window. */
-html, body {
+
+body {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
+/* Always set the map height explicitly to define the size of the div
+ * element that contains the map. */
+#map {
+  height: 100%;
+}
+
+.popup-contents {
+  height: auto;
+  width: 100%;
+}
+
+.popup-photos {
+  display: flex;
+  flex-direction: row;
+}
+
+.popup-photos img {
+  height: auto;
+  width: 100%;
+}
+
+.popup-photos-main {
+  padding-right: 1px;
+  width: 66.66%;
+}
+
+.popup-photos-other {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-left: 1px;
+  width: 33.33%;
+}
+
+.popup-price-and-phone {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.popup-spacer {
+  width: 1em;
+}
+/* When passing X as a get parameter, show the price.
+ * We don't care *that* much about hiding prices... */
+.popup-price-show {
+  color: black;
+}
+
+.popup-phone {
+  text-align: right;
+}
+
+.popup-price,
+.popup-phone,
+.popup-description {
+  font-size: 130%;
+}
+
+.popup-location
+{
+  font-size: 120%;
+}
+
+.popup-info,
+.popup-summary {
+  width: 100%;
+}

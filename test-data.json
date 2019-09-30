@@ -1,53 +1,101 @@
 [
     {
-      "id": 1, "desc": "Prop 1",
-      "loc": {"lat": 52.237085, "lng": 0.174802},
-      "url": "https://mozilla.org", "addr": "Mozilla",
-      "summary": "Makers of Firefox and all. Location is at 'Baits Bite Lock' because it had a funny name",
-      "price": "open-source (lol, that's not a price!)",
-      "phone": "555 867-5309"
+        "addr": "Mozilla",
+        "desc": "Prop 1",
+        "id": 1,
+        "imgs": [
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Penguin_in_Antarctica_jumping_out_of_the_water.jpg/640px-Penguin_in_Antarctica_jumping_out_of_the_water.jpg",
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Falkland_Islands_Penguins_88.jpg/640px-Falkland_Islands_Penguins_88.jpg",
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Spheniscus_humboldti_-swimming_-aquarium-8a.jpg/640px-Spheniscus_humboldti_-swimming_-aquarium-8a.jpg"
+        ],
+        "loc": {
+            "lat": 52.237085,
+            "lng": 0.174802
+        },
+        "phone": "555 867-5309",
+        "price": {
+            "display": "open-source (lol, that's not a price!)"
+        },
+        "summary": "Makers of Firefox and all. Location is at 'Baits Bite Lock' because it had a funny name",
+        "url": "https://mozilla.org"
     },
     {
-      "id": 4, "desc": "Prop Quatre",
-      "loc": {"lat": 52.195186, "lng": 0.131626},
-      "url": "https://rust-lang.org", "addr": "Rust",
-      "summary": "RUST!!!. Location is at 'Norfolk Street Bakery' because they seem to have nice cakes",
-      "price": "open-source (lol, that's not a price!)",
-      "phone": "666 867-5309"
+        "addr": "Rust",
+        "desc": "Prop Quatre",
+        "id": 4,
+        "loc": {
+            "lat": 52.195186,
+            "lng": 0.131626
+        },
+        "phone": "666 867-5309",
+        "price": {
+            "display": "open-source (lol, that's not a price!)",
+            "qual": "'tis fast, though!"
+        },
+        "summary": "RUST!!!. Location is at 'Norfolk Street Bakery' because they seem to have nice cakes",
+        "url": "https://rust-lang.org"
     },
     {
-      "id": 5, "desc": "Prop 五",
-      "loc": {"lat": 52.202624, "lng": 0.115195},
-      "url": "https://en.wikipedia.org/wiki/Mathematics", "addr": "Mathematical Bridge",
-      "summary": "Just 'some random bridge' in Cambrige.",
-      "price": "Thousands of years",
-      "phone": "0"
+        "addr": "Mathematical Bridge",
+        "desc": "Prop \u4e94",
+        "id": 5,
+        "loc": {
+            "lat": 52.202624,
+            "lng": 0.115195
+        },
+        "phone": "0",
+        "price": {
+            "display": "Thousands of years",
+            "qual": "no qualifications"
+        },
+        "summary": "Just 'some random bridge' in Cambrige.",
+        "url": "https://en.wikipedia.org/wiki/Mathematics"
     },
-
     {
-      "id": 6, "desc": "Prop Seis",
-      "loc": {"lat": 52.193417, "lng": 0.127769},
-      "url": "https://developer.mozilla.org/en-US/", "addr": "Botanic Garden",
-      "summary": "MDN was the thing that helped me write this crappy site...",
-      "price": "Priceless",
-      "phone": "NaN"
+        "addr": "Botanic Garden",
+        "desc": "Prop Seis",
+        "id": 6,
+        "loc": {
+            "lat": 52.193417,
+            "lng": 0.127769
+        },
+        "phone": "NaN",
+        "price": {
+            "display": "Priceless"
+        },
+        "summary": "MDN was the thing that helped me write this crappy site...",
+        "url": "https://developer.mozilla.org/en-US/"
     },
-
     {
-      "id": 2, "desc": "Prop Due",
-      "loc": {"lat": 52.196926, "lng": 0.113044},
-      "url": "https://en.wikipedia.org/wiki/Llama", "addr": "Llama's Land",
-      "summary": "Llama's Land is a funny name, so I used it!",
-      "price": "LLAMA!!!!",
-      "phone": "0118 999 881 999 119 725 3"
+        "addr": "Llama's Land",
+        "desc": "Prop Due",
+        "id": 2,
+        "loc": {
+            "lat": 52.196926,
+            "lng": 0.113044
+        },
+        "phone": "0118 999 881 999 119 725 3",
+        "price": {
+            "display": "LLAMA!!!!",
+            "qual": "llama llama!"
+        },
+        "summary": "Llama's Land is a funny name, so I used it!",
+        "url": "https://en.wikipedia.org/wiki/Llama"
     },
-
     {
-      "id": 3, "desc": "Prop Tres",
-      "loc": {"lat": 52.210419, "lng": 0.128407},
-      "url": "https://en.wikipedia.org/wiki/Cambridge", "addr": "Midsommer Common",
-      "summary": "Another random place in Cambridge",
-      "price": "Dunno",
-      "phone": "0123456789"
+        "addr": "Midsommer Common",
+        "desc": "Prop Tres",
+        "id": 3,
+        "loc": {
+            "lat": 52.210419,
+            "lng": 0.128407
+        },
+        "phone": "0123456789",
+        "price": {
+            "display": "Dunno",
+            "qual": "lol, 'summer'"
+        },
+        "summary": "Another random place in Cambridge",
+        "url": "https://en.wikipedia.org/wiki/Cambridge"
     }
 ]

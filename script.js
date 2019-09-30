@@ -36,19 +36,17 @@ function propertyPopup(marker) {
   var photos = div('popup-photos');
   contents.appendChild(photos);
   var mainPhoto = div('popup-photos-main');
-  if (prop.imgs && prop.imgs[0])
-    mainPhoto.appendChild(img(prop.imgs[0]));
+  if (prop.imgs && prop.imgs[0]) mainPhoto.appendChild(img(prop.imgs[0]));
   photos.appendChild(mainPhoto);
 
   if (prop.imgs.length == 1) {
-    // Cheat and make this take the whole width since we only have a single photo
+    // Cheat and make this take the whole width since we only have a single
+    // photo
     mainPhoto.style.width = '100%';
   } else {
     var otherPhotos = div('popup-photos-other');
-    if (prop.imgs && prop.imgs[1])
-      otherPhotos.appendChild(img(prop.imgs[1]));
-    if (prop.imgs && prop.imgs[2])
-      otherPhotos.appendChild(img(prop.imgs[2]));
+    if (prop.imgs && prop.imgs[1]) otherPhotos.appendChild(img(prop.imgs[1]));
+    if (prop.imgs && prop.imgs[2]) otherPhotos.appendChild(img(prop.imgs[2]));
     photos.appendChild(otherPhotos);
   }
 
@@ -57,7 +55,8 @@ function propertyPopup(marker) {
 
   var priceAndPhone = div('popup-price-and-phone');
   var price = span('popup-price');
-  const priceStr = `${prop.price.display}${prop.price.qual ? " " + prop.price.qual : ""}`;
+  const priceStr =
+      `${prop.price.display}${prop.price.qual ? ' ' + prop.price.qual : ''}`;
   price.textContent = priceStr;
   priceAndPhone.appendChild(price);
 
@@ -101,13 +100,15 @@ const testFiles = ['test-data.json'];
 const testAreas = ['test-areas.json'];
 
 // Some utility functions
-// Promise: Fetch a JSON object, or return an empty array, if not possible to fetch
+// Promise: Fetch a JSON object, or return an empty array, if not possible to
+// fetch
 function maybeFetchJSON(path) {
   // FIXME: Don't mind 404 errors, just return an empty array
-  return fetch(path).then(function (response) {
+  return fetch(path).then(function(response) {
     if (!response.ok) {
       // TODO: Maybe have a better way to report errors to user
-      console.log(`Failed request to ${response.url}: ${response.status} ${response.statusText}`);
+      console.log(`Failed request to ${response.url}: ${response.status} ${
+          response.statusText}`);
       return [];
     }
     return response.json()
@@ -149,7 +150,8 @@ const circles = interestingAreas.then(function(areas) {
 });
 
 // Now add markers for all the properties we care about
-const data = fetchMergeJSONArrays(dataFiles).then(data => ifEmptyFetchTests(data, testFiles));
+const data = fetchMergeJSONArrays(dataFiles).then(
+    data => ifEmptyFetchTests(data, testFiles));
 
 Promise.all([circles, data]).then(function([circles, data]) {
   // Add markers and fit the map to them. No need to keep track of the markers,

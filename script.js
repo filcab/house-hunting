@@ -39,12 +39,18 @@ function propertyPopup(marker) {
   if (prop.imgs && prop.imgs[0])
     mainPhoto.appendChild(img(prop.imgs[0]));
   photos.appendChild(mainPhoto);
-  var otherPhotos = div('popup-photos-other');
-  if (prop.imgs && prop.imgs[1])
-    otherPhotos.appendChild(img(prop.imgs[1]));
-  if (prop.imgs && prop.imgs[2])
-    otherPhotos.appendChild(img(prop.imgs[2]));
-  photos.appendChild(otherPhotos);
+
+  if (prop.imgs.length == 1) {
+    // Cheat and make this take the whole width since we only have a single photo
+    mainPhoto.style.width = '100%';
+  } else {
+    var otherPhotos = div('popup-photos-other');
+    if (prop.imgs && prop.imgs[1])
+      otherPhotos.appendChild(img(prop.imgs[1]));
+    if (prop.imgs && prop.imgs[2])
+      otherPhotos.appendChild(img(prop.imgs[2]));
+    photos.appendChild(otherPhotos);
+  }
 
   var info = div('popup-info');
   contents.appendChild(info);

@@ -1,2 +1,3 @@
 Language: JavaScript
 BasedOnStyle: Google
+AllowShortIfStatementsOnASingleLine: false

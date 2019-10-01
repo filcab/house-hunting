@@ -29,24 +29,24 @@ function circleArea(map, name, loc, diameter) {
 // maxWidth will depend on screen type:
 //   phones/etc: most/all of the screen
 //   tablet/computer: A "decent" size
+// FIXME: Using window.innerWidth as I don't know what else to use
 function calculatePopupMaxWidth() {
-  // I guess this is good enough to distiniguish between laptop/tablet and
-  // phone?
+  // I guess this is good enough to distinguish between laptop/tablet and phone?
   if (window.innerWidth > 1024) {
     return window.innerWidth * 0.40;
   } else {
     return window.innerWidth * 0.85;
   }
-  //return width * window.devicePixelRatio;
 }
 const popupMaxWidth = calculatePopupMaxWidth();
+
 function addProperty(map, p, popupFunction) {
   // Add marker
   const marker = L.marker(p.loc);
   marker.property = p;
   // FIXME: We might want to set this to *a lot* (screen width, maybe?) and then
   // trim it down with CSS, depending on the type of screen
-  marker.bindPopup(popupFunction, { maxWidth: popupMaxWidth });
+  marker.bindPopup(popupFunction, {maxWidth: popupMaxWidth});
   marker.addTo(map);
   return marker;
 }

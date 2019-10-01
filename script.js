@@ -36,7 +36,8 @@ function propertyPopup(marker) {
   var photos = div('popup-photos');
   contents.appendChild(photos);
   var mainPhoto = div('popup-photos-main');
-  if (prop.imgs && prop.imgs[0]) mainPhoto.appendChild(img(prop.imgs[0]));
+  if (prop.imgs && prop.imgs[0])
+    mainPhoto.appendChild(img(prop.imgs[0]));
   photos.appendChild(mainPhoto);
 
   if (prop.imgs.length == 1) {
@@ -45,8 +46,10 @@ function propertyPopup(marker) {
     mainPhoto.style.width = '100%';
   } else {
     var otherPhotos = div('popup-photos-other');
-    if (prop.imgs && prop.imgs[1]) otherPhotos.appendChild(img(prop.imgs[1]));
-    if (prop.imgs && prop.imgs[2]) otherPhotos.appendChild(img(prop.imgs[2]));
+    if (prop.imgs && prop.imgs[1])
+      otherPhotos.appendChild(img(prop.imgs[1]));
+    if (prop.imgs && prop.imgs[2])
+      otherPhotos.appendChild(img(prop.imgs[2]));
     photos.appendChild(otherPhotos);
   }
 
@@ -91,7 +94,8 @@ var map = createAndAttachMap('map');
 
 // Add current location control from Leaflet.Locate plugin, but only if we're
 // serving through https
-if (window.location.protocol == 'https:') L.control.locate().addTo(map);
+if (window.location.protocol == 'https:')
+  L.control.locate().addTo(map);
 
 // Distances are in meters
 const areaDiameter = 1600;

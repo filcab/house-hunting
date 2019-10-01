@@ -12,7 +12,7 @@ if (window.location.protocol == 'https:')
 const areaDiameter = 1600;
 
 // Actual data (not committed)
-const dataFiles = ['data.json', 'data-otm.json'];
+const dataFiles = ['data-rm.json', 'data-otm.json'];
 const areas = ['areas.json'];
 // Test data, as an example
 const testFiles = ['test-data.json'];

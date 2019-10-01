@@ -10,8 +10,8 @@ const makeAbsoluteUrl = relativeUrl => `${baseUrl.href}${relativeUrl}`;
 // Create a div with a label + textarea with our data
 // The textarea element allows us to do a "select all" inside it easily
 function displayData(data) {
-  var div = document.createElement('div');
-  let divStyle = div.style;
+  const div = document.createElement('div');
+  const divStyle = div.style;
   divStyle.backgroundColor = 'white';
   divStyle.position = 'fixed';
   // Manually replace '%' with '%25' so the bookmarklet works
@@ -26,18 +26,18 @@ function displayData(data) {
   // Eh... This works well enough
   divStyle.paddingBottom = '5ex';
 
-  var label = document.createElement('label');
+  const label = document.createElement('label');
   label.setAttribute('for', 'bookmarkletDataContents');
-  let labelStyle = label.style;
+  const labelStyle = label.style;
   labelStyle.display = 'block';
   // Manually replace '%' with '%25' so the bookmarklet works
   labelStyle.fontSize = '125%25';
   label.textContent = 'Data gathered and cleaned up. Contents:';
   div.appendChild(label);
 
-  var textarea = document.createElement('textarea');
+  const textarea = document.createElement('textarea');
   textarea.setAttribute('id', 'bookmarkletDataContents');
-  let textareaStyle = textarea.style;
+  const textareaStyle = textarea.style;
   // Manually replace '%' with '%25' so the bookmarklet works
   textareaStyle.width = '100%25';
   textareaStyle.height = '100%25';
@@ -50,12 +50,12 @@ function displayData(data) {
 
 function OnTheMarket() {
   function fetchId(id) {
-    var obj = fetch(`https://www.onthemarket.com/map/view-pin/?id=${id}`);
+    const obj = fetch(`https://www.onthemarket.com/map/view-pin/?id=${id}`);
     return obj.then(x => x.json());
   }
 
   function convertToCommon(p) {
-    var result = {
+    const result = {
       imgs: [p['cover-image']],
       price: {display: p.price, qual: p['price-qualifier']},
       agent: {phone: 'lol, OnTheMarket!'},
@@ -147,19 +147,19 @@ function RightMove() {
   const shortlistFetch = id =>
       fetch(shortlistUrl(id), {credentials: 'include'}).then(x => x.json());
   const mapProperties = shortlistFetch(1).then(page1 => {
-    var n_pages = page1.totalPages;
-    var shortlist = page1.properties;
+    const n_pages = page1.totalPages;
+    const shortlist = page1.properties;
     console.log('got shortlist page 1');
 
     // Don't re-fetch the first page, pages start counting on 1
-    var pages = [];
-    for (var i = 2; i <= n_pages; ++i)
+    const pages = [];
+    for (const i = 2; i <= n_pages; ++i)
       pages.push(shortlistFetch(i).then(x => x.properties));
 
     return Promise.all(pages).then(rest => {
       console.log('got all shortlist pages');
       rest = rest.flat();
-      var allProps = shortlist.concat(rest);
+      const allProps = shortlist.concat(rest);
 
       return allProps;
     });
@@ -172,11 +172,11 @@ function RightMove() {
   mapProperties
       .then(props => {
         const idsToQuery = props.map(p => p.propertyId);
-        var requests = [];
+        const requests = [];
         // 25 per search seems to be the maximum
         const STEP = 25;
-        for (var cursor = 0; cursor < idsToQuery.length; cursor += STEP) {
-          var batch = idsToQuery.slice(cursor, cursor + STEP);
+        for (const cursor = 0; cursor < idsToQuery.length; cursor += STEP) {
+          const batch = idsToQuery.slice(cursor, cursor + STEP);
           requests.push(
               fetch(
                   '/api/_searchByIds?channel=BUY&viewType=MAP&propertyIds=' +
@@ -189,7 +189,7 @@ function RightMove() {
         console.log('got query results');
         const [shortlist, mapData] = things;
 
-        var idMapData = new Map();
+        const idMapData = new Map();
         for (const item of mapData) idMapData.set(item.id, item);
 
         console.log('merging...');

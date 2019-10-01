@@ -1,6 +1,6 @@
 function createAndAttachMap(divId) {
   // Use a starting point in London. We'll call fitBounds soon anyway.
-  var map = L.map(divId).setView([51.505, -0.09], 13);
+  const map = L.map(divId).setView([51.505, -0.09], 13);
 
   // Use OSM tiles for now. Maybe have a selector
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

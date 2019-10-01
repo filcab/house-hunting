@@ -1,7 +1,7 @@
 // All map-related functions called in this file should be abstract regarding
 // the map being used. We've only tested one map library, but hopefully it's
 // abstracted enough.
-var map = createAndAttachMap('map');
+const map = createAndAttachMap('map');
 
 // Add current location control from Leaflet.Locate plugin, but only if we're
 // serving through https

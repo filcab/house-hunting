@@ -89,6 +89,10 @@ function propertyPopup(marker) {
 // abstracted enough.
 var map = createAndAttachMap('map');
 
+// Add current location control from Leaflet.Locate plugin, but only if we're
+// serving through https
+if (window.location.protocol == 'https:') L.control.locate().addTo(map);
+
 // Distances are in meters
 const areaDiameter = 1600;
 

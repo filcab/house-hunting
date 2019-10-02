@@ -51,12 +51,6 @@ body {
 .popup-spacer {
   width: 1em;
 }
-/* When passing X as a get parameter, show the price.
- * We don't care *that* much about hiding prices... */
-.popup-price-show {
-  color: black;
-}
-
 .popup-phone {
   text-align: right;
 }

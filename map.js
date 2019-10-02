@@ -55,3 +55,10 @@ function fitToMarkers(map, markers) {
   const featureGroup = new L.featureGroup(markers);
   map.fitBounds(featureGroup.getBounds());
 }
+
+function enableGeolocation(map) {
+  // Only enable Leaflet.Locate plugin if we're on https:, otherwise it won't
+  // work.
+  if (window.location.protocol == 'https:')
+    L.control.locate().addTo(map);
+}

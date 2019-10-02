@@ -3,10 +3,8 @@
 // abstracted enough.
 const map = createAndAttachMap('map');
 
-// Add current location control from Leaflet.Locate plugin, but only if we're
-// serving through https
-if (window.location.protocol == 'https:')
-  L.control.locate().addTo(map);
+// Add current location. Only works if protocol is https:
+enableGeolocation(map);
 
 // Distances are in meters
 const areaDiameter = 1600;

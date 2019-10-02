@@ -21,9 +21,9 @@ house-hunting/
   ├── bookmarklet.js   # Unminified bookmarklet (Supports RightMove and OnTheMarket)
   ├── build.py         # Script that runs babel-minify on bookmarklet generating b.js
   ├── deploy.sh        # Simple scp-based deploy script. Invoke with destination as argument
-  ├── index.html       # Main HTML file, imports libraries, has map div,
+  ├── index.html       # HTML file, imports libraries, has map div,
   │                    # and imports the main script files
-  ├── map.js           # Main map abstraction layer. For now it only supports Leaflet
+  ├── map.js           # Map abstraction layer. For now it only supports Leaflet
   ├── popup.js         # Function which generates the popup comments for a marker (propertyPopup)
   │                    # marker is expected to have a marker.property property
   ├── script.js        # Main script logic: creates map, (maybe) enables geolocation,

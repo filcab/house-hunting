@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+
+import cgitb
+cgitb.enable()
+
+import html
+import json
+import os
+import sys
+
+DEBUG = True
+
+
+def header(name, value):
+    print('{}: {}\r\n'.format(name, value), end='')
+
+
+def check(b, reason=''):
+    if not b:
+        header('Content-type', 'text/html')
+        print('\r\n', end='')
+        print('<h1>oops!</h1>')
+        print('<strong>Internal error</strong>', end='')
+        if DEBUG and reason:
+            print(html.escape(reason))
+        sys.exit(0)
+
+
+# Extract some info from headers/env vars, and validate
+env = os.environ
+
+DOCUMENT_ROOT = env.get('DOCUMENT_ROOT', None)
+check(DOCUMENT_ROOT, "Couldn't find document root")
+
+PREFS_DIR = os.path.join(DOCUMENT_ROOT, 'data')
+# Make sure prefs dir exists
+if not os.path.isdir(PREFS_DIR):
+    check(not os.path.exists(PREFS_DIR), "Preference storage directory is not a directory")
+
+# Should be ok? Apache is in charge of setting it...
+user = env.get('REMOTE_USER', None)
+check(user, "Couldn't get a username")
+check('.' not in user, "Invalid username")
+
+method = env.get('REQUEST_METHOD', None)
+check(method, "Couldn't get a request method")
+check(method in ['GET', 'POST'], "Invalid request method")
+
+https = env.get('HTTPS', None) == 'on'
+check(https, "Requires HTTPS")
+
+
+# Actual program
+def prefs_file(user):
+    return os.path.join(PREFS_DIR, user)
+
+def read_prefs(user):
+    prefs = prefs_file(user)
+    # No file means we don't have data
+    if not os.path.isfile(prefs):
+        return { 'result': 'no data', 'prefs': '{}' }
+
+    with open(prefs, 'r') as f:
+        pref_data = f.read()
+        return { 'result': 'ok', 'prefs': pref_data }
+
+def write_prefs(user, data):
+    prefs = prefs_file(user)
+
+    with open(prefs, 'w') as f:
+        f.write(data)
+    return { 'result': 'ok', 'prefs': data }
+
+res = None
+if method == 'GET':
+    res = read_prefs(user)
+elif method == 'POST':
+    res = write_prefs(user, sys.stdin.read())
+else:
+    check(False, "Prerequisites failed!")
+
+header('Content-type', 'application/json')
+print('\r\n', end='')
+json.dump(res, sys.stdout)

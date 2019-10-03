@@ -51,29 +51,40 @@ function ifEmptyFetchTests(data, tests) {
 // We'll draw a circle ${areaDiameter} wide around each of these. In the future,
 // we should be able to have a query and ask some geocoding service. For now,
 // hardcode coordinates.
-const interestingAreas = fetchMergeJSONArrays(areas).then(
-    areas => ifEmptyFetchTests(areas, testAreas));
-// Create a circle per area, keep them in a dict
-const circles = interestingAreas.then(function(areas) {
-  const kv_pairs =
-      areas
-          .map(function(area) {
-            return Object.entries(area).map(
-                ([name,
-                  loc]) => [name, circleArea(map, name, loc, areaDiameter)])
-          })
-          .flat();
-  return new Map(kv_pairs);
-});
+async function drawInterestingAreas() {
+  const interestingAreas =
+      await fetchMergeJSONArrays(areas).then(function(areas) {
+        console.log(areas);
+        return ifEmptyFetchTests(areas, testAreas);
+      });
 
-// Now add markers for all the properties we care about
-const data = fetchMergeJSONArrays(dataFiles).then(
-    data => ifEmptyFetchTests(data, testFiles));
+  // Create a circle per area
+  const kv_pairs = interestingAreas.map(function(area) {
+    return Object.entries(area).map(
+        ([name, loc]) => [name, circleArea(map, name, loc, areaDiameter)])
+  });
 
-Promise.all([circles, data]).then(function([circles, data]) {
-  // Add markers and fit the map to them. No need to keep track of the markers,
-  // as any click on them will be able to access the property.
+  // Return a map of area_name -> circle
+  return new Map(kv_pairs.flat());
+}
+
+async function drawMarkers() {
+  // Add markers for all the properties we care about
+  const data = await fetchMergeJSONArrays(dataFiles).then(
+      data => ifEmptyFetchTests(data, testFiles));
   const markers = data.map(p => addProperty(map, p, propertyPopup));
-  fitToMarkers(map, markers.concat(Array.from(circles.values())));
+  return markers;
+}
+
+const userPrefsPromise = UserPreferences();
+userPrefsPromise.then(async function(userPrefs) {
+  console.log(userPrefs);
+
+  const areas = await drawInterestingAreas();
+  console.log(areas);
+  console.log(Array.from(areas.values()));
+  const markers = await drawMarkers();
+
+  fitToMarkers(map, markers.concat(Array.from(areas.values())));
   console.log('done!');
 });

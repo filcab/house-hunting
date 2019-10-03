@@ -20,7 +20,7 @@ This repo contains the skeleton for a simple website to aggregate property locat
 house-hunting/
   ├── bookmarklet.js   # Unminified bookmarklet (Supports RightMove and OnTheMarket)
   ├── build.py         # Script that runs babel-minify on bookmarklet generating b.js
-  ├── deploy.sh        # Simple scp-based deploy script. Invoke with destination as argument
+  ├── deploy.sh        # Simple rsync-based deploy script. Invoke with destination as argument
   ├── index.html       # HTML file, imports libraries, has map div,
   │                    # and imports the main script files
   ├── map.js           # Map abstraction layer. For now it only supports Leaflet

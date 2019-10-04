@@ -1,5 +1,5 @@
 function createAndAttachMap(divId) {
-  // Use a starting point in London. We'll call fitBounds soon anyway.
+  // Use a starting point in London. We'll call flyToBounds soon anyway.
   const map = L.map(divId).setView([51.505, -0.09], 13);
 
   // Use OSM tiles for now. Maybe have a selector
@@ -61,7 +61,7 @@ function addProperty(prefs, map, p, popupFunction) {
 
 function fitToMarkers(map, markers) {
   const featureGroup = new L.featureGroup(markers);
-  map.fitBounds(featureGroup.getBounds());
+  map.flyToBounds(featureGroup.getBounds());
 }
 
 let askedForOrientation = false;

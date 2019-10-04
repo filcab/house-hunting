@@ -9,8 +9,17 @@ const makeAbsoluteUrl = relativeUrl => `${baseUrl.href}${relativeUrl}`;
 
 // Create a div with a label + textarea with our data
 // The textarea element allows us to do a "select all" inside it easily
+const divClass = 'bookmarklet-property-data';
+
 function displayData(data) {
+  // First remove any old one that might be there (Browser is likely to not
+  // repaint it. I've checked that it works with a sleep-like call.
+  const old = document.getElementById(divClass);
+  if (old != undefined)
+    old.parentElement.removeChild(old);
+
   const div = document.createElement('div');
+  div.setAttribute('id', divClass);
   const divStyle = div.style;
   divStyle.backgroundColor = 'white';
   divStyle.position = 'fixed';
@@ -49,6 +58,12 @@ function displayData(data) {
 }
 
 function OnTheMarket() {
+  const OTMSavedPage = '/my-account/properties/';
+  if (window.location.pathname != OTMSavedPage) {
+    alert('This bookmarklet only works on the "Saved Properties" page');
+    return;
+  }
+
   function fetchId(id) {
     const obj = fetch(`https://www.onthemarket.com/map/view-pin/?id=${id}`);
     return obj.then(x => x.json());
@@ -56,6 +71,7 @@ function OnTheMarket() {
 
   function convertToCommon(p) {
     const result = {
+      id: parseInt(p.id),
       imgs: [p['cover-image']],
       price: {display: p.price, qual: p['price-qualifier']},
       agent: {phone: 'lol, OnTheMarket!'},
@@ -153,8 +169,9 @@ function RightMove() {
 
     // Don't re-fetch the first page, pages start counting on 1
     const pages = [];
-    for (const i = 2; i <= n_pages; ++i)
+    for (let i = 2; i <= n_pages; ++i) {
       pages.push(shortlistFetch(i).then(x => x.properties));
+    }
 
     return Promise.all(pages).then(rest => {
       console.log('got all shortlist pages');
@@ -175,7 +192,7 @@ function RightMove() {
         const requests = [];
         // 25 per search seems to be the maximum
         const STEP = 25;
-        for (const cursor = 0; cursor < idsToQuery.length; cursor += STEP) {
+        for (let cursor = 0; cursor < idsToQuery.length; cursor += STEP) {
           const batch = idsToQuery.slice(cursor, cursor + STEP);
           requests.push(
               fetch(
@@ -208,8 +225,9 @@ const functions = {
 const fun = functions[window.location.host];
 
 if (fun === undefined) {
-  alert(`Don't know what to do on this website: ${
-      window.location.host}\nfunctions: ${functions}`);
+  alert(
+      `Don't know what to do on this website: ` +
+      `${window.location.host}\nfunctions: ${functions}`);
 } else {
   fun();
 }

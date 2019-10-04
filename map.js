@@ -12,7 +12,7 @@ function createAndAttachMap(divId) {
 }
 
 // Higher-level function to draw a circle around an "interesting area"
-function circleArea(map, name, loc, diameter) {
+function circleArea(prefs, map, name, loc, diameter) {
   const circle = L.circle(loc, {
     color: '#a00',
     opacity: 0.5,
@@ -40,7 +40,7 @@ function calculatePopupMaxWidth() {
 }
 const popupMaxWidth = calculatePopupMaxWidth();
 
-function addProperty(map, p, popupFunction) {
+function addProperty(prefs, map, p, popupFunction) {
   // Add marker
   const marker = L.marker(p.loc);
   marker.property = p;
@@ -48,6 +48,16 @@ function addProperty(map, p, popupFunction) {
   // trim it down with CSS, depending on the type of screen
   marker.bindPopup(popupFunction, {maxWidth: popupMaxWidth});
   marker.addTo(map);
+
+  // FIXME: Maybe deal with this elsewhere?
+  // FIXME: Add some listener so we can toggle on/off easily
+  // FIXME: Unsure if there's a better way. Leaflet doesn't seem to allow us to
+  // change marker style
+  console.log(p)
+  console.log(`p.id: ${p.id}, indexOf: ${prefs.get('highlight').indexOf(p.id)}`);
+  const shouldHighlight = prefs.get('highlight').indexOf(p.id) != -1;
+  if (shouldHighlight)
+    marker.getElement().classList.add('marker-highlight');
   return marker;
 }
 

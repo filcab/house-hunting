@@ -1,5 +1,9 @@
 const PrefsUrl = '/dynamic/preferences';
 
+const defaultPrefsJSON = JSON.stringify({
+  highlight: [],
+});
+
 // Loads prefs from server immediately
 async function UserPreferences() {
   const obj = {
@@ -25,24 +29,38 @@ async function UserPreferences() {
       }
     },
 
-    load: async function loadPrefs() {
+    load: async function() {
       const response = await fetch(PrefsUrl).then(x => x.json());
       if (response.result != 'ok') {
-        console.log(`not ok response: ${response}`);
-        return {};
+        const newPrefs = JSON.parse(defaultPrefsJSON);
+        console.log(
+            `not ok response: ${response}, setting default: ${newPrefs}`);
+        obj.prefs = newPrefs;
+        return obj;
       }
 
       try {
-        return JSON.parse(response.prefs);
+        obj.prefs = JSON.parse(response.prefs);
       } catch (e) {
         console.log(`Exception: ${e}`);
         console.log('Couldn\'t parse pref response:')
         console.log(response);
-        return {};
       }
+      return obj;
+    },
+
+    get: function(name) {
+      return obj.prefs[name];
+    },
+
+    // Does not automatically save!
+    set: function(name, value) {
+      obj.prefs[name] = value;
+      // Useful for chaining
+      return obj;
     },
   };
 
-  obj.prefs = await obj.load();
+  await obj.load();
   return obj;
 }

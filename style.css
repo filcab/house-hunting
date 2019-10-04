@@ -70,3 +70,7 @@ body {
 .popup-summary {
   width: 100%;
 }
+
+.marker-highlight {
+  filter: hue-rotate(180deg);
+}

@@ -51,39 +51,43 @@ function ifEmptyFetchTests(data, tests) {
 // We'll draw a circle ${areaDiameter} wide around each of these. In the future,
 // we should be able to have a query and ask some geocoding service. For now,
 // hardcode coordinates.
-async function drawInterestingAreas() {
+async function drawInterestingAreas(prefs) {
   const interestingAreas =
       await fetchMergeJSONArrays(areas).then(function(areas) {
-        console.log(areas);
         return ifEmptyFetchTests(areas, testAreas);
       });
 
   // Create a circle per area
   const kv_pairs = interestingAreas.map(function(area) {
     return Object.entries(area).map(
-        ([name, loc]) => [name, circleArea(map, name, loc, areaDiameter)])
+        ([name, loc]) => [name, circleArea(prefs, map, name, loc, areaDiameter)])
   });
 
   // Return a map of area_name -> circle
   return new Map(kv_pairs.flat());
 }
 
-async function drawMarkers() {
+async function drawMarkers(prefs) {
   // Add markers for all the properties we care about
   const data = await fetchMergeJSONArrays(dataFiles).then(
       data => ifEmptyFetchTests(data, testFiles));
-  const markers = data.map(p => addProperty(map, p, propertyPopup));
+  const markers = data.map(p => addProperty(prefs, map, p, propertyPopup));
   return markers;
 }
 
+// FIXME: HACK: have a global way to set preferences, for debugging
+var globalUserPrefs;
+
 const userPrefsPromise = UserPreferences();
 userPrefsPromise.then(async function(userPrefs) {
-  console.log(userPrefs);
+  globalUserPrefs = userPrefs;
+  console.log('preferences');
+  console.log(userPrefs.prefs);
+  console.log(`highlight:`);
+  console.log(userPrefs.get('highlight'));
 
-  const areas = await drawInterestingAreas();
-  console.log(areas);
-  console.log(Array.from(areas.values()));
-  const markers = await drawMarkers();
+  const areas = await drawInterestingAreas(userPrefs);
+  const markers = await drawMarkers(userPrefs);
 
   fitToMarkers(map, markers.concat(Array.from(areas.values())));
   console.log('done!');

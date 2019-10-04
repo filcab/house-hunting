@@ -28,6 +28,14 @@ function anchor(url, text) {
   return a;
 }
 
+function appleMaps(loc) {
+  return `https://maps.apple.com/?daddr=${loc.lat},${loc.lng}`;
+}
+
+// Use apple maps by default
+// TODO: If not on iOS/macOS, use GMaps?
+const locationUrl = appleMaps;
+
 // Function that builds a popup for a marker.
 function propertyPopup(marker) {
   const prop = marker.property;
@@ -77,7 +85,7 @@ function propertyPopup(marker) {
   info.appendChild(description);
 
   const location = div('popup-location');
-  location.textContent = prop.addr;
+  location.appendChild(anchor(locationUrl(prop.loc), prop.addr));
   info.appendChild(location);
 
   const summary = div('popup-summary');

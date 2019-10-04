@@ -64,6 +64,7 @@ function fitToMarkers(map, markers) {
   map.fitBounds(featureGroup.getBounds());
 }
 
+let askedForOrientation = false;
 function enableGeolocation(map, areas) {
   // Only enable Leaflet.Locate plugin if we're on https:, otherwise it won't
   // work.
@@ -72,25 +73,39 @@ function enableGeolocation(map, areas) {
 
   const options = {
     getLocationBounds: function(locationEvent) {
+      // FIXME: This is probably being shallow copied only :-(
       const origBounds = locationEvent.bounds;
 
+      let found = false;
       for (const area of areas) {
         const circle = area[1];
         const bounds = circle.getBounds();
         // Compare against original bounds, as we don't want to grow too much
         // when we have overlapping areas
-        if (bounds.contains(origBounds))
+        if (bounds.contains(origBounds)) {
+          found = true;
           locationEvent.bounds.extend(bounds);
+        }
       }
 
+      if (!found) {
+        const bounds = locationEvent.bounds;
+        areas.forEach((circle, name, map) => bounds.extend(circle.getBounds()));
+      }
       return locationEvent.bounds;
     },
 
     locationOptions: {
-      watch: true,
       enableHighAccuracy: true,
     },
   };
 
-  L.control.locate(options).addTo(map);
+  const control = L.control.locate(options).addTo(map);
+  // Add a user-triggered (mandatory) request for orientation information
+  L.DomEvent.on(control._link, 'click', function() {
+    if (!askedForOrientation && window.DeviceOrientationEvent) {
+      askedForOrientation = true;
+      DeviceOrientationEvent.requestPermission().then(alert);
+    }
+  });
 }

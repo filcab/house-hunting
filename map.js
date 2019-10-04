@@ -64,9 +64,33 @@ function fitToMarkers(map, markers) {
   map.fitBounds(featureGroup.getBounds());
 }
 
-function enableGeolocation(map) {
+function enableGeolocation(map, areas) {
   // Only enable Leaflet.Locate plugin if we're on https:, otherwise it won't
   // work.
-  if (window.location.protocol == 'https:')
-    L.control.locate().addTo(map);
+  if (window.location.protocol != 'https:')
+    return;
+
+  const options = {
+    getLocationBounds: function(locationEvent) {
+      const origBounds = locationEvent.bounds;
+
+      for (const area of areas) {
+        const circle = area[1];
+        const bounds = circle.getBounds();
+        // Compare against original bounds, as we don't want to grow too much
+        // when we have overlapping areas
+        if (bounds.contains(origBounds))
+          locationEvent.bounds.extend(bounds);
+      }
+
+      return locationEvent.bounds;
+    },
+
+    locationOptions: {
+      watch: true,
+      enableHighAccuracy: true,
+    },
+  };
+
+  L.control.locate(options).addTo(map);
 }

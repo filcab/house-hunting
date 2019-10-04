@@ -3,9 +3,6 @@
 // abstracted enough.
 const map = createAndAttachMap('map');
 
-// Add current location. Only works if protocol is https:
-enableGeolocation(map);
-
 // Distances are in meters
 const areaDiameter = 1600;
 
@@ -83,12 +80,14 @@ userPrefsPromise.then(async function(userPrefs) {
   globalUserPrefs = userPrefs;
   console.log('preferences');
   console.log(userPrefs.prefs);
-  console.log(`highlight:`);
-  console.log(userPrefs.get('highlight'));
 
   const areas = await drawInterestingAreas(userPrefs);
   const markers = await drawMarkers(userPrefs);
 
   fitToMarkers(map, markers.concat(Array.from(areas.values())));
+
+  // Add current location. Only works if protocol is https:
+  enableGeolocation(map, areas);
+
   console.log('done!');
 });

@@ -5,7 +5,8 @@ function createAndAttachMap(divId) {
   // Use OSM tiles for now. Maybe have a selector
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
      attribution:
-         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+     detectRetina: true,
    }).addTo(map);
 
   return map;
@@ -18,10 +19,9 @@ function circleArea(prefs, map, name, loc, diameter) {
     opacity: 0.5,
     weight: 1,
     fillColor: '#0a0',
-    fillOpacity: 0.1,
+    fillOpacity: 0.05,
     radius: diameter,
   });
-  circle.bindTooltip(name);
   circle.addTo(map);
   return circle;
 }
@@ -53,8 +53,6 @@ function addProperty(prefs, map, p, popupFunction) {
   // FIXME: Add some listener so we can toggle on/off easily
   // FIXME: Unsure if there's a better way. Leaflet doesn't seem to allow us to
   // change marker style
-  console.log(p)
-  console.log(`p.id: ${p.id}, indexOf: ${prefs.get('highlight').indexOf(p.id)}`);
   const shouldHighlight = prefs.get('highlight').indexOf(p.id) != -1;
   if (shouldHighlight)
     marker.getElement().classList.add('marker-highlight');

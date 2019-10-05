@@ -114,11 +114,12 @@ function enableGeolocation(map, areas) {
   };
 
   const control = L.control.locate(options).addTo(map);
-  // Add a user-triggered (mandatory) request for orientation information
+  // Add a user-triggered (mandatory) request for orientation information,
+  // otherwise we don't get a compass from Leaflet.Locate
   L.DomEvent.on(control._link, 'click', function() {
     if (!askedForOrientation && window.DeviceOrientationEvent) {
       askedForOrientation = true;
-      DeviceOrientationEvent.requestPermission().then(alert);
+      DeviceOrientationEvent.requestPermission();
     }
   });
 }

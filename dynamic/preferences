@@ -29,10 +29,10 @@ def check(b, reason=''):
 # Extract some info from headers/env vars, and validate
 env = os.environ
 
-DOCUMENT_ROOT = env.get('DOCUMENT_ROOT', None)
-check(DOCUMENT_ROOT, "Couldn't find document root")
+CONTEXT = env.get('CONTEXT_DOCUMENT_ROOT', None)
+check(CONTEXT, "Couldn't find context directory")
 
-PREFS_DIR = os.path.join(DOCUMENT_ROOT, 'data')
+PREFS_DIR = os.path.join(CONTEXT, os.path.pardir, 'data')
 # Make sure prefs dir exists
 if not os.path.isdir(PREFS_DIR):
     check(not os.path.exists(PREFS_DIR), "Preference storage directory is not a directory")

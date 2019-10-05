@@ -1,4 +1,4 @@
-const PrefsUrl = '/dynamic/preferences';
+const PrefsUrl = 'dynamic/preferences';
 
 const defaultPrefsJSON = JSON.stringify({
   highlight: [],

@@ -36,6 +36,25 @@ function appleMaps(loc) {
 // TODO: If not on iOS/macOS, use GMaps?
 const locationUrl = appleMaps;
 
+async function setupPostCodeInfo(elem, p) {
+  const postCodeUrl =
+      `https://api.postcodes.io/postcodes?lat=${p.loc.lat}&lon=${p.loc.lng}`;
+  const options = {
+    referrer: 'no-referrer',
+  };
+
+  // Swallow errors
+  const query_result = await fetch(postCodeUrl, options)
+                           .then(x => x.json())
+                           .catch(x => undefined);
+
+  if (query_result.status == 200) {
+    const first_result = query_result.result[0];
+    elem.textContent = first_result.postcode;
+    elem.style.display = 'block';
+  }
+}
+
 // Function that builds a popup for a marker.
 function propertyPopup(marker) {
   const prop = marker.property;
@@ -87,6 +106,11 @@ function propertyPopup(marker) {
   const location = div('popup-location');
   location.appendChild(anchor(locationUrl(prop.loc), prop.addr));
   info.appendChild(location);
+
+  const postcode = div('popup-postcode');
+  postcode.style.display = 'hidden';
+  setupPostCodeInfo(postcode, prop);
+  info.appendChild(postcode);
 
   const summary = div('popup-summary');
   summary.textContent = prop.summary;

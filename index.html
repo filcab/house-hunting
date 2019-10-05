@@ -1,27 +1,48 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>Casas</title>
 		<meta charset="UTF-8"/>
-		<!-- From https://www.flaticon.com/free-icon/house_609803#term=house&page=1&position=12 -->
-		<link rel="apple-touch-icon" href="/house.png">
+
+		<!-- Start with CSS -->
+		<!-- My homemade stylesheet -->
+		<link rel="stylesheet" href="style.css"></link>
 		<!-- Leaflet stuff from the Quickstart Guide -->
 		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
-		<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
-
-		<link rel="stylesheet" href="style.css"></link>
-		<!-- From "Leaflet for Mobile" page-->
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-
+		<!-- Mapbox GL -->
+		<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.4.0/mapbox-gl.css' rel='stylesheet' />
 		<!-- For a good looking leaflet location marker: https://github.com/domoritz/leaflet-locatecontrol -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.67.0/dist/L.Control.Locate.min.css" />
-		<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.67.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+
+		<!-- Apple iOS stuff -->
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="format-detection" content="telephone=yes">
+		<!-- From "Leaflet for Mobile" page-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<!-- Icon from https://www.flaticon.com/free-icon/house_609803#term=house&page=1&position=12 -->
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+
+		<!-- Leaflet stuff from the Quickstart Guide -->
+		<script defer src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+
+		<!-- Leaflet + Mapbox GL integration (for vector tiles) -->
+		<!-- Mapbox GL -->
+		<script defer src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.4.0/mapbox-gl.js'></script>
+		<!-- Integration itself -->
+		<script defer src="https://unpkg.com/mapbox-gl-leaflet/leaflet-mapbox-gl.js"></script>
+
+		<!-- For a good looking leaflet location marker: https://github.com/domoritz/leaflet-locatecontrol -->
+		<script defer src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.67.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+
+		<!-- My scripts -->
+		<script defer src="utils.js"></script>
+		<script defer src="map.js"></script>
+		<script defer src="prefs.js"></script>
+		<script defer src="popup.js"></script>
+		<script defer src="script.js"></script>
 	</head>
 	<body>
 		<div id="map"></div>
-		<script src="map.js"></script>
-		<script src="prefs.js"></script>
-		<script src="popup.js"></script>
-		<script src="script.js"></script>
 	</body>
 </html>

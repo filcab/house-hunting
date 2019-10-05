@@ -1,13 +1,26 @@
 function createAndAttachMap(divId) {
   // Use a starting point in London. We'll call flyToBounds soon anyway.
-  const map = L.map(divId).setView([51.505, -0.09], 13);
+  const map = L.map(divId, {
+    center: [51.505, -0.09],
+    zoom: 13,
+  });
 
-  // Use OSM tiles for now. Maybe have a selector
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-     attribution:
-         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-     detectRetina: true,
-   }).addTo(map);
+  // Depending on availability of WebGL, we might be able to use vector tiles.
+  if (isWebGLAvailable()) {
+    // Add OSM vector maps, display using mapboxGL
+    L.mapboxGL({
+       style:
+           'https://raw.githubusercontent.com/osm2vectortiles/mapbox-gl-styles/master/styles/bright-v9-cdn.json',
+       accessToken: 'no-token'
+     }).addTo(map);
+  } else {
+    // Use OSM tiles as a fallback
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+       attribution:
+           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+       detectRetina: true,
+     }).addTo(map);
+  }
 
   return map;
 }

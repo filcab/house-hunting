@@ -37,11 +37,18 @@ function displayData(data) {
   const label = document.createElement('label');
   label.setAttribute('for', 'bookmarkletDataContents');
   const labelStyle = label.style;
-  labelStyle.display = 'block';
+  labelStyle.display = 'inline';
   // Manually replace '%' with '%25' so the bookmarklet works
   labelStyle.fontSize = '125%25';
   label.textContent = 'Data gathered and cleaned up. Contents:';
   div.appendChild(label);
+  const date = document.createElement('span');
+  date.textContent = new Date();
+  date.style.display = 'inline';
+  date.style.textColot = 'grey';
+  date.style.display = 'float';
+  date.style.float = 'right';
+  div.appendChild(date);
 
   const textarea = document.createElement('textarea');
   textarea.setAttribute('id', 'bookmarkletDataContents');
@@ -229,5 +236,6 @@ if (fun === undefined) {
       `${window.location.host}\nfunctions: ${functions}`);
 } else {
   fun();
+  console.log(`Got data at: ${new Date()}`);
 }
 })()

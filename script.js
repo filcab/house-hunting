@@ -30,9 +30,10 @@ function maybeFetchJSON(path) {
 }
 
 // Promise: Merge an array of maybeFetchJSON results
-function fetchMergeJSONArrays(files) {
+async function fetchMergeJSONArrays(files) {
   const reqs = files.map(maybeFetchJSON);
-  return Promise.all(reqs).then(array => array.flat());
+  const array = await Promise.all(reqs)
+  return array.flat();
 }
 
 // Promise: If the input is empty, fetch the test JSON arrays

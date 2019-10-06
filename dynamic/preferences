@@ -8,19 +8,16 @@ import json
 import os
 import sys
 
-DEBUG = True
-
-
+DEBUG = False
 def header(name, value):
     print('{}: {}\r\n'.format(name, value), end='')
-
 
 def check(b, reason=''):
     if not b:
         header('Content-type', 'text/html')
         print('\r\n', end='')
         print('<h1>oops!</h1>')
-        print('<strong>Internal error</strong>', end='')
+        print('<strong>Internal error</strong>:', end=' ')
         if DEBUG and reason:
             print(html.escape(reason))
         sys.exit(0)
@@ -29,16 +26,41 @@ def check(b, reason=''):
 # Extract some info from headers/env vars, and validate
 env = os.environ
 
-CONTEXT = env.get('CONTEXT_DOCUMENT_ROOT', None)
-check(CONTEXT, "Couldn't find context directory")
 
-PREFS_DIR = os.path.join(CONTEXT, os.path.pardir, 'data')
-# Make sure prefs dir exists
-if not os.path.isdir(PREFS_DIR):
-    check(not os.path.exists(PREFS_DIR), "Preference storage directory is not a directory")
+server_software = env['SERVER_SOFTWARE']
+
+# Does it look like we're running on a local python instance? If so:
+# - Use `dynamic/data/...` as preference file destination
+# - Use `nobody` as user
+server_looks_local = server_software.startswith('SimpleHTTP') \
+        and 'Python' in server_software and 'PATH_TRANSLATED' in env
+
+
+def get_data_dir(server_looks_local):
+    if server_looks_local:
+        return os.path.join(env['PATH_TRANSLATED'],
+                            # Only use the portion after the first '/'
+                            os.path.dirname(env['SCRIPT_NAME'][1:]))
+
+    # Looks like apache. Unsure about nginx or others
+    context = env.get('CONTEXT_DOCUMENT_ROOT', None)
+    check(context, "Couldn't find context directory")
+
+    prefs_dir = os.path.join(context, os.path.pardir, 'data')
+    # Make sure prefs dir exists
+    if not os.path.isdir(prefs_dir):
+        check(not os.path.exists(prefs_dir), "Preference storage directory is not a directory")
+    return prefs_dir
+prefs_dir = get_data_dir(server_looks_local)
+
 
 # Should be ok? Apache is in charge of setting it...
-user = env.get('REMOTE_USER', None)
+def get_user(server_looks_local, env):
+    if server_looks_local:
+        return 'nobody'
+    return env.get('REMOTE_USER', None)
+
+user = get_user(server_looks_local, env)
 check(user, "Couldn't get a username")
 check('.' not in user, "Invalid username")
 
@@ -46,13 +68,13 @@ method = env.get('REQUEST_METHOD', None)
 check(method, "Couldn't get a request method")
 check(method in ['GET', 'POST'], "Invalid request method")
 
-https = env.get('HTTPS', None) == 'on'
-check(https, "Requires HTTPS")
-
+if not server_looks_local:
+    https = env.get('HTTPS', None) == 'on'
+    check(https, "Requires HTTPS")
 
 # Actual program
 def prefs_file(user):
-    return os.path.join(PREFS_DIR, user)
+    return os.path.join(prefs_dir, user)
 
 def read_prefs(user):
     prefs = prefs_file(user)
@@ -75,6 +97,7 @@ res = None
 if method == 'GET':
     res = read_prefs(user)
 elif method == 'POST':
+    data = sys.stdin.read(int(env['CONTENT_LENGTH'])) if 'CONTENT_LENGTH' in env else sys.stdin.read()
     res = write_prefs(user, sys.stdin.read())
 else:
     check(False, "Prerequisites failed!")

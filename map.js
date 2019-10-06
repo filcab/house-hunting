@@ -14,11 +14,27 @@ function createAndAttachMap(divId) {
        accessToken: 'no-token'
      }).addTo(map);
   } else {
-    // Use OSM tiles as a fallback
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-       attribution:
-           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-       detectRetina: true,
+    const osmLayers = {
+      // Regular OSM server
+      1: {
+        urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      },
+      // Wikimedia server, has 2x images
+      2: {
+        urlTemplate:
+            'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}@2x.png',
+        attribution:
+            '&copy; <a href="https://foundation.wikimedia.org/w/index.php?title=Maps_Terms_of_Use#Where_does_the_map_data_come_from.3F">WikiMedia Int</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      },
+    };
+
+    // Try to get the layer using the devidePixelRatio, fall back to the non-retina one
+    const osmLayer = osmLayers[window.devicePixelRatio] || osmLayers[1];
+    //const osmLayer = osmLayers[1];
+    L.tileLayer(osmLayer.urlTemplate, {
+       attribution: osmLayer.attribution,
      }).addTo(map);
   }
 

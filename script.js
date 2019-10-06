@@ -8,7 +8,7 @@ const areaDiameter = 1600;
 
 // Actual data (not committed)
 const dataFiles = ['data-rm.json', 'data-otm.json'];
-const areas = ['areas.json'];
+const areaFiles = ['areas.json'];
 // Test data, as an example
 const testFiles = ['test-data.json'];
 const testAreas = ['test-areas.json'];
@@ -17,7 +17,7 @@ const testAreas = ['test-areas.json'];
 // Promise: Fetch a JSON object, or return an empty array, if not possible to
 // fetch
 function maybeFetchJSON(path) {
-  // FIXME: Don't mind 404 errors, just return an empty array
+  // FIXME: Don't mind connection errors, just return an empty array
   return fetch(path).then(function(response) {
     if (!response.ok) {
       // TODO: Maybe have a better way to report errors to user
@@ -36,59 +36,62 @@ async function fetchMergeJSONArrays(files) {
   return array.flat();
 }
 
-// Promise: If the input is empty, fetch the test JSON arrays
-function ifEmptyFetchTests(data, tests) {
-  if (data.length == 0) {
-    console.log(`data not found, fetching test data from ${tests}`);
-    return fetchMergeJSONArrays(tests);
+async function fetchWithBackup(dataFiles, testFiles) {
+  let fetched = await fetchMergeJSONArrays(dataFiles);
+  if (fetched.length == 0) {
+    console.log(`data not found at ${dataFiles}, fetching test data from ${testFiles}`);
+    fetched = await fetchMergeJSONArrays(testFiles);
   }
-  return data;
+  // Merge all areas into a single object
+  // If two areas are defined with the same name, only the latter will be used.
+  // FIXME: Maybe be nicer
+  return fetched;
 }
 
 // Interesting areas:
 // We'll draw a circle ${areaDiameter} wide around each of these. In the future,
 // we should be able to have a query and ask some geocoding service. For now,
 // hardcode coordinates.
-async function drawInterestingAreas(prefs) {
-  const interestingAreas =
-      await fetchMergeJSONArrays(areas).then(function(areas) {
-        return ifEmptyFetchTests(areas, testAreas);
-      });
-
+function drawInterestingAreas(map, areas, prefs) {
   // Create a circle per area
-  const kv_pairs = interestingAreas.map(function(area) {
-    return Object.entries(area).map(
-        ([name, loc]) => [name, circleArea(prefs, map, name, loc, areaDiameter)])
+  return areas.map(function(area) {
+    const marker = circleArea(prefs, map, area, areaDiameter);
+    area.marker = marker;
+    return marker;
   });
-
-  // Return a map of area_name -> circle
-  return new Map(kv_pairs.flat());
 }
 
-async function drawMarkers(prefs) {
+function drawMarkers(map, props, prefs) {
   // Add markers for all the properties we care about
-  const data = await fetchMergeJSONArrays(dataFiles).then(
-      data => ifEmptyFetchTests(data, testFiles));
-  const markers = data.map(p => addProperty(prefs, map, p, propertyPopup));
-  return markers;
+  return props.map(function(prop) {
+    const marker = addProperty(prefs, map, prop, propertyPopup);
+    prop.marker = marker;
+    return marker;
+  });
 }
 
-// FIXME: HACK: have a global way to set preferences, for debugging
-var globalUserPrefs;
+// Global data, for ease of access, mostly
+document.data = {};
 
-const userPrefsPromise = UserPreferences();
-userPrefsPromise.then(async function(userPrefs) {
-  globalUserPrefs = userPrefs;
-  console.log('preferences');
-  console.log(userPrefs.prefs);
+async function main() {
+  const prefs = await UserPreferences();
+  document.data.prefs = prefs;
+  console.log('prefs', prefs);
+  const areas = await fetchWithBackup(areaFiles, testAreas);
+  document.data.areas = areas;
+  console.log('areas', areas);
+  const props = await fetchWithBackup(dataFiles, testFiles);
+  document.data.props = props;
+  console.log('props', props);
 
-  const areas = await drawInterestingAreas(userPrefs);
-  const markers = await drawMarkers(userPrefs);
+  const areaMarkers = drawInterestingAreas(map, areas, prefs);
+  const markers = drawMarkers(map, props, prefs);
 
-  fitToMarkers(map, markers.concat(Array.from(areas.values())));
+  fitToMarkers(map, markers.concat(Array.from(areaMarkers.values())));
 
   // Add current location. Only works if protocol is https:
-  enableGeolocation(map, areas);
+  enableGeolocation(map, areaMarkers);
 
   console.log('done!');
-});
+}
+main()

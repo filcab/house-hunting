@@ -42,8 +42,8 @@ function createAndAttachMap(divId) {
 }
 
 // Higher-level function to draw a circle around an "interesting area"
-function circleArea(prefs, map, name, loc, diameter) {
-  const circle = L.circle(loc, {
+function circleArea(prefs, map, area, diameter) {
+  const circle = L.circle(area.loc, {
     color: '#a00',
     opacity: 0.5,
     weight: 1,
@@ -51,6 +51,7 @@ function circleArea(prefs, map, name, loc, diameter) {
     fillOpacity: 0.05,
     radius: diameter,
   });
+  circle.area = area;
   circle.addTo(map);
   return circle;
 }
@@ -70,11 +71,9 @@ function calculatePopupMaxWidth() {
 const popupMaxWidth = calculatePopupMaxWidth();
 
 function addProperty(prefs, map, p, popupFunction) {
-  // Add marker
   const marker = L.marker(p.loc);
   marker.property = p;
-  // FIXME: We might want to set this to *a lot* (screen width, maybe?) and then
-  // trim it down with CSS, depending on the type of screen
+
   marker.bindPopup(popupFunction, {maxWidth: popupMaxWidth});
   marker.addTo(map);
 
@@ -90,11 +89,12 @@ function addProperty(prefs, map, p, popupFunction) {
 
 function fitToMarkers(map, markers) {
   const featureGroup = new L.featureGroup(markers);
+  console.log('fitting to:', featureGroup.getBounds());
   map.flyToBounds(featureGroup.getBounds());
 }
 
 let askedForOrientation = false;
-function enableGeolocation(map, areas) {
+function enableGeolocation(map, areaMarkers) {
   // Only enable Leaflet.Locate plugin if we're on https:, otherwise it won't
   // work.
   if (window.location.protocol != 'https:')
@@ -106,7 +106,7 @@ function enableGeolocation(map, areas) {
       const origBounds = locationEvent.bounds;
 
       let found = false;
-      for (const area of areas) {
+      for (const area of areaMarkers) {
         const circle = area[1];
         const bounds = circle.getBounds();
         // Compare against original bounds, as we don't want to grow too much
@@ -119,7 +119,7 @@ function enableGeolocation(map, areas) {
 
       if (!found) {
         const bounds = locationEvent.bounds;
-        areas.forEach((circle, name, map) => bounds.extend(circle.getBounds()));
+        areaMarkers.forEach((circle, name, map) => bounds.extend(circle.getBounds()));
       }
       return locationEvent.bounds;
     },

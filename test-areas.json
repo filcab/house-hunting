@@ -1,4 +1,18 @@
-{
-  "Cambridge": {"lat": 52.194401, "lng": 0.137446},
-  "Cambridge North": {"lat": 52.227446, "lng": 0.156565}
-}
+[
+    {
+        "loc": {
+            "lat": 52.194401,
+            "lng": 0.137446
+        },
+        "name": "Cambridge",
+        "type": "circle"
+    },
+    {
+        "loc": {
+            "lat": 52.227446,
+            "lng": 0.156565
+        },
+        "name": "Cambridge North",
+        "type": "circle"
+    }
+]

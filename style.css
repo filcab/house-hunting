@@ -74,3 +74,6 @@ html, body {
 .marker-highlight {
   filter: hue-rotate(180deg);
 }
+.marker-sold {
+  filter: grayscale(1) brightness(1.5);
+}

@@ -70,6 +70,21 @@ function calculatePopupMaxWidth() {
 }
 const popupMaxWidth = calculatePopupMaxWidth();
 
+function setHighlightStyle(prefs, marker) {
+  const p = marker.property;
+
+  // Priority (last one sticks):
+  //   "Our" highlights
+  //   "Sold STC"
+  //   ??
+  const shouldHighlight = prefs.get('highlight').indexOf(p.id) != -1;
+  if (shouldHighlight)
+    marker.getElement().classList.add('marker-highlight');
+
+  if (p.tags && p.tags.includes('Sold STC'))
+    marker.getElement().classList.add('marker-sold');
+}
+
 function addProperty(prefs, map, p, popupFunction) {
   const marker = L.marker(p.loc);
   marker.property = p;
@@ -77,13 +92,10 @@ function addProperty(prefs, map, p, popupFunction) {
   marker.bindPopup(popupFunction, {maxWidth: popupMaxWidth});
   marker.addTo(map);
 
-  // FIXME: Maybe deal with this elsewhere?
-  // FIXME: Add some listener so we can toggle on/off easily
-  // FIXME: Unsure if there's a better way. Leaflet doesn't seem to allow us to
-  // change marker style
-  const shouldHighlight = prefs.get('highlight').indexOf(p.id) != -1;
-  if (shouldHighlight)
-    marker.getElement().classList.add('marker-highlight');
+  // Has to be called only after adding to the map, otherwise we don't have an
+  // element/style yet
+  setHighlightStyle(prefs, marker)
+
   return marker;
 }
 

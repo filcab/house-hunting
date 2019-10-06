@@ -4,8 +4,7 @@
 (function() {
 
 // Common utilities
-const baseUrl = new URL('/', window.location);
-const makeAbsoluteUrl = relativeUrl => `${baseUrl.href}${relativeUrl}`;
+const makeAbsoluteUrl = relativeUrl => new URL(relativeUrl, window.location);
 
 // Create a div with a label + textarea with our data
 // The textarea element allows us to do a "select all" inside it easily

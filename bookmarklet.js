@@ -63,41 +63,62 @@ function displayData(data) {
   document.body.appendChild(div);
 }
 
-function OnTheMarket() {
+async function OnTheMarket() {
   const OTMSavedPage = '/my-account/properties/';
   if (window.location.pathname != OTMSavedPage) {
     alert('This bookmarklet only works on the "Saved Properties" page');
     return;
   }
 
-  function fetchId(id) {
-    const obj = fetch(`https://www.onthemarket.com/map/view-pin/?id=${id}`);
-    return obj.then(x => x.json());
+  async function fetchId(id) {
+    const obj =
+        await fetch(`https://www.onthemarket.com/map/view-pin/?id=${id}`);
+    return obj.json();
   }
 
-  function convertToCommon(p) {
+  function mergeToCommonFormat(p, div) {
+    const id = parseInt(p.id);
+
+    // tag text has a ton of whitespace.
+    const tags = div.querySelector('div.flags')
+                     .textContent.split(/\r?\n/)
+                     .map(x => x.trim())
+                     .filter(x => x);
+
     const result = {
-      id: parseInt(p.id),
+      id: id,
       imgs: [p['cover-image']],
       price: {display: p.price, qual: p['price-qualifier']},
-      agent: {phone: 'lol, OnTheMarket!'},
       url: makeAbsoluteUrl(p['details-url']),
       desc: p['property-title'],
       loc: {lat: p.location.lat, lng: p.location.lon},
       addr: p.display_address,
-      summary: 'OnTheMarket!'
+      summary: div.querySelector('p.description').textContent.trim(),
+      agent: {
+        phone: div.querySelector('span.call').textContent.trim(),
+        logo: p.agent['display-logo'].url,
+        name: p.agent.company_name,
+      },
+      tags: tags,
     };
     return result;
   }
 
-  function fetchIdToCommon(id) {
-    return fetchId(id).then(convertToCommon);
+  async function fetchIdToCommon(id, propDivs) {
+    const prop = await fetchId(id);
+    return mergeToCommonFormat(prop, propDivs.get(id));
   }
 
   const propIds = dataLayer[0]['property-ids'];
 
-  const objs = Promise.all(propIds.map(fetchIdToCommon));
-  objs.then(JSON.stringify).then(displayData);
+  const queryResults = document.body.querySelectorAll('div.property-result');
+  const to_kv = x => [x.attributes['data-instruction-id'].value, x];
+  // Map over a NodeList iterator without creating a temporary array
+  // https://tiffanybbrown.com/2012/10/16/iterating-and-applying-functions-to-nodelists-with-map-and-foreach/index.html
+  const propDivs = new Map(Array.prototype.map.call(queryResults, to_kv));
+
+  const objs = await Promise.all(propIds.map(prop => fetchIdToCommon(prop, propDivs)));
+  displayData(JSON.stringify(objs));
 }
 
 function RightMove() {
@@ -152,6 +173,7 @@ function RightMove() {
       agent: {
         logo: pShortlist.agent.branchLogoUrl,
 
+        name: pData.customer.brandTradingName,
         phone: pData.customer.contactTelephone,
         // this is weird in the shortlist
         url: makeAbsoluteUrl(pData.customer.branchLandingPageUrl),

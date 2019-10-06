@@ -1,19 +1,22 @@
 const PrefsUrl = 'dynamic/preferences';
 
-const defaultPrefsJSON = JSON.stringify({
-  highlight: [],
-});
+function makeDefaultPrefs() {
+  return {
+    highlight: []
+  };
+}
 
 // Loads prefs from server immediately
 async function UserPreferences() {
   const obj = {
     save: async function() {
-      const response = await fetch(PrefsUrl, {
-                         method: 'POST',
-                         body: JSON.stringify(obj.prefs)
-                       }).then(x => x.json());
+      console.log('saving prefs:', obj.prefs);
+      const connection = await fetch(
+          PrefsUrl, {method: 'POST', body: JSON.stringify(obj.prefs)});
+      console.log(connection);
+      const response = await connection.json();
       if (response.result != 'ok') {
-        console.log(`not ok response: ${response}`);
+        console.log(`saving preferences: not ok response: ${response}`);
         return;
       }
 
@@ -30,11 +33,15 @@ async function UserPreferences() {
     },
 
     load: async function() {
-      const response = await fetch(PrefsUrl).then(x => x.json());
+      const response =
+          await fetch(PrefsUrl).then(x => x.json()).catch(function(error) {
+            return {result: 'server error', error: error};
+          });
+
       if (response.result != 'ok') {
-        const newPrefs = JSON.parse(defaultPrefsJSON);
-        console.log(
-            `not ok response: ${response}, setting default: ${newPrefs}`);
+        const newPrefs = makeDefaultPrefs();
+        console.log('loading preferences: not ok response:', response);
+        console.log('setting default preferences:', newPrefs);
         obj.prefs = newPrefs;
         return obj;
       }
@@ -45,7 +52,9 @@ async function UserPreferences() {
         console.log(`Exception: ${e}`);
         console.log('Couldn\'t parse pref response:')
         console.log(response);
+        obj.prefs = makeDefaultPrefs();
       }
+      console.log('loaded prefs:', obj.prefs);
       return obj;
     },
 

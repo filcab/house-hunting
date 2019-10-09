@@ -4,9 +4,9 @@ function isWebGLAvailable() {
   // Create canvas element. The canvas is not added to the
   // document itself, so it is never displayed in the
   // browser window.
-  var canvas = document.createElement('canvas');
+  const canvas = document.createElement('canvas');
   // Get WebGLRenderingContext from canvas element.
-  var gl =
+  const gl =
       canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
   // Report the result.
   return gl && gl instanceof WebGLRenderingContext;

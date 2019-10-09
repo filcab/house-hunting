@@ -28,13 +28,12 @@ function anchor(url, text) {
   return a;
 }
 
-function appleMaps(loc) {
+// Use Apple Maps by default
+// Apple seems to redirect to Google, so Android users should get a Google Maps
+// page or app.
+function mapsLink(loc) {
   return `https://maps.apple.com/?daddr=${loc.lat},${loc.lng}`;
 }
-
-// Use apple maps by default
-// TODO: If not on iOS/macOS, use GMaps?
-const locationUrl = appleMaps;
 
 async function setupPostCodeInfo(elem, p) {
   const postCodeUrl =
@@ -104,7 +103,7 @@ function propertyPopup(marker) {
   info.appendChild(description);
 
   const location = div('popup-location');
-  location.appendChild(anchor(locationUrl(prop.loc), prop.addr));
+  location.appendChild(anchor(mapsLink(prop.loc), prop.addr));
   info.appendChild(location);
 
   const postcode = div('popup-postcode');

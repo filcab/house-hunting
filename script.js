@@ -73,7 +73,19 @@ function drawMarkers(map, props, prefs) {
 // Global data, for ease of access, mostly
 document.data = {};
 
+function adjustTitleIfDev() {
+  // Don't ever set more than once
+  if (document.title.endsWith(' (dev)'))
+    return;
+
+  if (window.location.hostname == 'localhost' ||
+      window.location.pathname.includes('/dev/'))
+    document.title += ' (dev)'
+}
+
 async function main() {
+  adjustTitleIfDev();
+
   const prefs = await UserPreferences();
   document.data.prefs = prefs;
   console.info('prefs', prefs);

@@ -28,6 +28,28 @@ function anchor(url, text) {
   return a;
 }
 
+// In order to support multiple effects, we can provide several span classes.
+// The function will create a span with the first class and the passed
+// textContent. Then place than in another span, with the next class, etc.
+function emojiCheckbox(nestedSpanClasses, textContent, onChange) {
+  const checkbox = element('label');
+  const buttonInput = element('input');
+  buttonInput.type = 'checkbox';
+  buttonInput.className = 'hide-checkbox';
+  if (onChange)
+    buttonInput.addEventListener('change', onChange);
+
+  let buttonText = document.createTextNode(textContent);
+  nestedSpanClasses.forEach(function(className) {
+    const newElement = span(className);
+    newElement.appendChild(buttonText);
+    buttonText = newElement;
+  });
+  checkbox.appendChild(buttonInput);
+  checkbox.appendChild(buttonText);
+  return checkbox;
+}
+
 // Use Apple Maps by default
 // Apple seems to redirect to Google, so Android users should get a Google Maps
 // page or app.
@@ -114,6 +136,11 @@ function propertyPopup(marker) {
   const summary = div('popup-summary');
   summary.textContent = prop.summary;
   info.appendChild(summary);
+
+  const buttons = div('popup-buttons');
+  buttons.appendChild(emojiCheckbox(['checkbox-ok', 'emoji-checkbox-faded'], '🆗'));
+  buttons.appendChild(emojiCheckbox(['checkbox-ng', 'emoji-checkbox-faded'], '🆖'));
+  info.appendChild(buttons);
 
   return contents;
 }

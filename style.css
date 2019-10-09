@@ -71,9 +71,40 @@ html, body {
   width: 100%;
 }
 
-.marker-highlight {
-  filter: hue-rotate(180deg);
+.hide-checkbox {
+  display: none;
 }
-.marker-sold {
-  filter: grayscale(1) brightness(1.5);
+
+.emoji-checkbox,
+.emoji-checkbox-faded {
+  font-size: 500%;
+}
+
+.checkbox-ok {
+  filter: hue-rotate(280deg);
+}
+
+.checkbox-ng {
+  filter: hue-rotate(150deg);
+}
+
+/* ...-faded variants are for emoji that are already faded by themselves */
+.hide-checkbox + .emoji-checkbox-faded {
+  transition: ease 0.2s;
+}
+
+.hide-checkbox:checked + .emoji-checkbox-faded {
+  transition: filter 0.2s ease;
+  filter: saturate(4);
+}
+
+/* For non-faded icons: Fade them a bit when unchecked */
+.hide-checkbox + .emoji-checkbox {
+  transition: ease 0.2s;
+  filter: sepia(1);
+}
+/* For non-faded icons: Don't saturate at all */
+.hide-checkbox:checked + .emoji-checkbox {
+  transition: ease 0.2s;
+  filter: none;
 }

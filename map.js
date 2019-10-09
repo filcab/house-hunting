@@ -89,10 +89,10 @@ function getAvailableVectorLayers(layersControl, tileLayers) {
       // Sorry... reaching into the object as I can't find another way
       const map = event.target._map;
       gl.getMapboxMap().on('error', function(error) {
-        console.log('mapbox error', error);
+        console.error('mapbox', error);
         layersControl.removeLayer(gl);
         if (map.hasLayer(gl)) {
-          console.log('active layer was mapbox, replacing');
+          console.debug('active layer was mapbox, replacing');
           gl.remove();
           // Assume there's at least one tile layer
           map.addLayer(tileLayers[0].layer);
@@ -101,7 +101,7 @@ function getAvailableVectorLayers(layersControl, tileLayers) {
       });
     });
   } catch (error) {
-    console.log('internal error creating mapbox gl layer', error);
+    console.error('internal error creating mapbox gl layer', error);
     return [];
   }
   return [{layer: gl, name: 'MapboxGL'}];
@@ -130,7 +130,6 @@ function createAndAttachMap(divId) {
       layerDef => layersControl.addBaseLayer(layerDef.layer, layerDef.name));
 
   L.control.scale().addTo(map);
-  console.log(map);
   return map;
 }
 
@@ -194,7 +193,7 @@ function addProperty(prefs, map, p, popupFunction) {
 
 function fitToMarkers(map, markers) {
   const featureGroup = new L.featureGroup(markers);
-  console.log('fitting to:', featureGroup.getBounds());
+  console.debug('fitting to:', featureGroup.getBounds());
   map.flyToBounds(featureGroup.getBounds());
 }
 

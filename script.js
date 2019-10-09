@@ -21,7 +21,7 @@ function maybeFetchJSON(path) {
   return fetch(path).then(function(response) {
     if (!response.ok) {
       // TODO: Maybe have a better way to report errors to user
-      console.log(`Failed request to ${response.url}: ${response.status} ${
+      console.warn(`Failed request to ${response.url}: ${response.status} ${
           response.statusText}`);
       return [];
     }
@@ -39,7 +39,7 @@ async function fetchMergeJSONArrays(files) {
 async function fetchWithBackup(dataFiles, testFiles) {
   let fetched = await fetchMergeJSONArrays(dataFiles);
   if (fetched.length == 0) {
-    console.log(`data not found at ${dataFiles}, fetching test data from ${testFiles}`);
+    console.warn(`data not found at ${dataFiles}, fetching test data from ${testFiles}`);
     fetched = await fetchMergeJSONArrays(testFiles);
   }
   // Merge all areas into a single object
@@ -76,13 +76,13 @@ document.data = {};
 async function main() {
   const prefs = await UserPreferences();
   document.data.prefs = prefs;
-  console.log('prefs', prefs);
+  console.info('prefs', prefs);
   const areas = await fetchWithBackup(areaFiles, testAreas);
   document.data.areas = areas;
-  console.log('areas', areas);
+  console.info('areas', areas);
   const props = await fetchWithBackup(dataFiles, testFiles);
   document.data.props = props;
-  console.log('props', props);
+  console.info('props', props);
 
   const areaMarkers = drawInterestingAreas(map, areas, prefs);
   const markers = drawMarkers(map, props, prefs);
@@ -92,6 +92,6 @@ async function main() {
   // Add current location. Only works if protocol is https:
   enableGeolocation(map, areaMarkers);
 
-  console.log('done!');
+  console.info('done!');
 }
 main()

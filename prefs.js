@@ -10,24 +10,24 @@ function makeDefaultPrefs() {
 async function UserPreferences() {
   const obj = {
     save: async function() {
-      console.log('saving prefs:', obj.prefs);
+      console.debug('saving prefs:', obj.prefs);
       const connection = await fetch(
           PrefsUrl, {method: 'POST', body: JSON.stringify(obj.prefs)});
-      console.log(connection);
+      console.debug(connection);
       const response = await connection.json();
       if (response.result != 'ok') {
-        console.log(`saving preferences: not ok response: ${response}`);
+        console.warn(`saving preferences: not ok response: ${response}`);
         return;
       }
 
       try {
         const jsonResponse = JSON.parse(response.prefs);
         if (jsonResponse != obj.prefs)
-          console.log('oops. response: ${jsonResponse} != prefs: ${obj.prefs}');
+          console.warn('oops. response: ${jsonResponse} != prefs: ${obj.prefs}');
       } catch (e) {
-        console.log(`Exception: ${e}`);
-        console.log('Couldn\'t parse pref response:')
-        console.log(response);
+        console.error(`Exception: ${e}`);
+        console.error('Couldn\'t parse pref response:')
+        console.error(response);
         ;
       }
     },
@@ -40,8 +40,8 @@ async function UserPreferences() {
 
       if (response.result != 'ok') {
         const newPrefs = makeDefaultPrefs();
-        console.log('loading preferences: not ok response:', response);
-        console.log('setting default preferences:', newPrefs);
+        console.warn('loading preferences: not ok response:', response);
+        console.warn('setting default preferences:', newPrefs);
         obj.prefs = newPrefs;
         return obj;
       }
@@ -49,12 +49,12 @@ async function UserPreferences() {
       try {
         obj.prefs = JSON.parse(response.prefs);
       } catch (e) {
-        console.log(`Exception: ${e}`);
-        console.log('Couldn\'t parse pref response:')
-        console.log(response);
+        console.error(`Exception: ${e}`);
+        console.error('Couldn\'t parse pref response:')
+        console.error(response);
         obj.prefs = makeDefaultPrefs();
       }
-      console.log('loaded prefs:', obj.prefs);
+      console.debug('loaded prefs:', obj.prefs);
       return obj;
     },
 

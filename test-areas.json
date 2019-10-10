@@ -5,7 +5,8 @@
             "lng": 0.137446
         },
         "name": "Cambridge",
-        "type": "circle"
+        "type": "circle",
+        "radius": 1600
     },
     {
         "loc": {
@@ -13,6 +14,7 @@
             "lng": 0.156565
         },
         "name": "Cambridge North",
-        "type": "circle"
+        "type": "circle",
+        "radius": 1600
     }
 ]

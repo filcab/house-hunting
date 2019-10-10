@@ -54,11 +54,14 @@ async function fetchWithBackup(dataFiles, testFiles) {
 // hardcode coordinates.
 function drawInterestingAreas(map, areas, prefs) {
   // Create a circle per area
-  return areas.map(function(area) {
-    const marker = circleArea(prefs, map, area, areaDiameter);
-    area.marker = marker;
-    return marker;
-  });
+  return areas
+      .map(function(area) {
+        const marker = drawArea(prefs, map, area, areaDiameter);
+        area.marker = marker;
+        return marker;
+      })
+      // Remove unknown area types
+      .filter(Boolean);
 }
 
 function drawMarkers(map, props, prefs) {

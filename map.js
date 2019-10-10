@@ -71,8 +71,11 @@ function createAndAttachMap(divId) {
   return map;
 }
 
-// Higher-level function to draw a circle around an "interesting area"
-function circleArea(prefs, map, area, diameter) {
+function drawArea(prefs, map, area, diameter) {
+  if (area.type != 'circle') {
+    console.error(`Unknown area type: ${area.type}. Ignoring`);
+    return;
+  }
   const circle = L.circle(area.loc, {
     color: '#a00',
     opacity: 0.5,

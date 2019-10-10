@@ -14,6 +14,10 @@ html, body {
   height: 100%;
 }
 
+.marker-highlight {
+  filter: hue-rotate(180deg);
+}
+
 .popup-contents {
   height: auto;
   width: 100%;

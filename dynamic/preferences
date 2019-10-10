@@ -17,7 +17,7 @@ def check(b, reason=''):
         header('Content-type', 'text/html')
         print('\r\n', end='')
         print('<h1>oops!</h1>')
-        print('<strong>Internal error</strong>:', end=' ')
+        print('<strong>Internal error</strong>', end=' ')
         if DEBUG and reason:
             print(html.escape(reason))
         sys.exit(0)
@@ -98,7 +98,7 @@ if method == 'GET':
     res = read_prefs(user)
 elif method == 'POST':
     data = sys.stdin.read(int(env['CONTENT_LENGTH'])) if 'CONTENT_LENGTH' in env else sys.stdin.read()
-    res = write_prefs(user, sys.stdin.read())
+    res = write_prefs(user, data)
 else:
     check(False, "Prerequisites failed!")
 

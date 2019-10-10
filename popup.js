@@ -69,7 +69,7 @@ async function setupPostCodeInfo(elem, p) {
                            .then(x => x.json())
                            .catch(x => undefined);
 
-  if (query_result.status == 200) {
+  if (query_result && query_result.status == 200 && query_result.result) {
     const first_result = query_result.result[0];
     elem.textContent = first_result.postcode;
     elem.style.display = 'block';

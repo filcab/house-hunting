@@ -110,7 +110,7 @@ function setHighlightStyle(prefs, marker) {
   //   "Our" highlights
   //   "Sold STC"
   //   ??
-  const shouldHighlight = prefs.get('highlight').indexOf(p.id) != -1;
+  const shouldHighlight = prefs.highlight.indexOf(p.id) != -1;
   if (shouldHighlight)
     marker.getElement().classList.add('marker-highlight');
 

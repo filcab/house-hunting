@@ -89,7 +89,7 @@ function adjustTitleIfDev() {
 async function main() {
   adjustTitleIfDev();
 
-  const prefs = await UserPreferences();
+  const prefs = await loadPreferences();
   document.data.prefs = prefs;
   console.info('prefs', prefs);
   const areas = await fetchWithBackup(areaFiles, testAreas);

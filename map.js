@@ -3,23 +3,27 @@ function getAvailableTileLayers() {
   const osm = {
     name: 'OpenStreetMap',
     urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    options: {
+      detectRetina: true,
+      attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    },
   };
 
   // Wikimedia server, has 2x images
   const wikimedia = {
     name: 'Wikimedia',
     urlTemplate: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png',
-    attribution:
-        '&copy; <a href="https://foundation.wikimedia.org/w/index.php?title=Maps_Terms_of_Use#Where_does_the_map_data_come_from.3F">WikiMedia Int</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    options: {
+      attribution:
+          '&copy; <a href="https://foundation.wikimedia.org/w/index.php?title=Maps_Terms_of_Use#Where_does_the_map_data_come_from.3F">WikiMedia Int</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }
   };
 
   return [wikimedia, osm].map(function(descriptor) {
+    const options = descriptor.options;
     return {
-      layer: L.tileLayer(descriptor.urlTemplate, {
-        attribution: descriptor.attribution,
-      }),
+      layer: L.tileLayer(descriptor.urlTemplate, options),
       name: descriptor.name
     };
   });

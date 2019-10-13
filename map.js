@@ -52,26 +52,27 @@ function getAvailableVectorLayers() {
 }
 
 function createAndAttachMap(divId) {
+  const map = {};
   // Use a starting point in London. We'll call flyToBounds soon anyway.
-  const map = L.map(divId, {
+  map.leafletMap = L.map(divId, {
     center: [51.505, -0.09],
     zoom: 13,
   });
 
 
-  const tileLayers = getAvailableTileLayers();
-  const vectorLayers = getAvailableVectorLayers();
+  map.tileLayers = getAvailableTileLayers();
+  map.vectorLayers = getAvailableVectorLayers();
 
-  const allLayers = vectorLayers.concat(tileLayers);
+  const allLayers = map.vectorLayers.concat(map.tileLayers);
   // Add the best layer (vectors have priority) to the map
-  allLayers[0].layer.addTo(map);
+  allLayers[0].layer.addTo(map.leafletMap);
 
-  const layersControl = L.control.layers();
-  allLayers.forEach(obj => layersControl.addBaseLayer(obj.layer, obj.name));
+  map.layersControl = L.control.layers();
+  allLayers.forEach(obj => map.layersControl.addBaseLayer(obj.layer, obj.name));
 
   // Add misc controls to map
-  layersControl.addTo(map);
-  L.control.scale().addTo(map);
+  map.layersControl.addTo(map.leafletMap);
+  L.control.scale().addTo(map.leafletMap);
   return map;
 }
 
@@ -81,30 +82,43 @@ function footAreaStyle(area) {
   const radius2Area = r => Math.PI * r * r;
 
   let color = '#ff0055';
-  if (area < radius2Area(500))
+  let opacity = 0.0125;
+  if (area < radius2Area(750)) {
     color = '#00ff55';
-  else if (area < radius2Area(1000))
+    opacity = 0.10;
+  } else if (area < radius2Area(1000)) {
     color = '#aaff55';
-  else if (area < radius2Area(1500))
+    opacity = 0.05;
+  } else if (area < radius2Area(1500)) {
     color = '#ffaa55';
+    opacity = 0.025;
+  }
 
   return {
     color: color,
-    fill: false,
+    fillOpacity: opacity,
     weight: 1,
   };
 }
 
-function drawGeoJSONArea(prefs, map, area) {
-  const drawn = L.geoJSON(
-      area.geojson, {style: feature => footAreaStyle(feature.properties.area)});
-  drawn.addTo(map);
+function compareFeatureArea(f1, f2) {
+  return f2.area - f1.area;
+}
+
+function drawGeoJSONArea(prefs, area) {
+  // First, make sure the feature group is sorted according to the area size
+  area.geojson.features.sort(compareFeatureArea);
+  const drawn = L.geoJSON(area.geojson, {
+    style: feature => footAreaStyle(feature.properties.area),
+    attribution: area.attribution
+  });
+  drawn.area = area;
   return drawn;
 }
 
-function drawArea(prefs, map, area) {
+function drawArea(prefs, area) {
   if (area.type == 'geojson')
-    return drawGeoJSONArea(prefs, map, area);
+    return drawGeoJSONArea(prefs, area);
 
   if (area.type != 'circle') {
     console.error(`Unknown area type: ${area.type}. Ignoring`);
@@ -120,7 +134,6 @@ function drawArea(prefs, map, area) {
     radius: area.radius,
   });
   circle.area = area;
-  circle.addTo(map);
   return circle;
 }
 
@@ -172,7 +185,7 @@ function addProperty(prefs, map, p, popupFunction) {
   marker.property = p;
 
   marker.bindPopup(popupFunction, {maxWidth: popupMaxWidth});
-  marker.addTo(map);
+  marker.addTo(map.leafletMap);
 
   // Has to be called only after adding to the map, otherwise we don't have an
   // element/style yet
@@ -184,7 +197,7 @@ function addProperty(prefs, map, p, popupFunction) {
 function fitToMarkers(map, markers) {
   const featureGroup = new L.featureGroup(markers);
   console.debug('fitting to:', featureGroup.getBounds());
-  map.flyToBounds(featureGroup.getBounds());
+  map.leafletMap.flyToBounds(featureGroup.getBounds());
 }
 
 let askedForOrientation = false;
@@ -213,7 +226,7 @@ function enableGeolocation(map, areaMarkers) {
 
       if (!found) {
         const bounds = locationEvent.bounds;
-        areaMarkers.forEach((circle, name, map) => bounds.extend(circle.getBounds()));
+        areaMarkers.forEach((circle, name, Map) => bounds.extend(circle.getBounds()));
       }
       return locationEvent.bounds;
     },
@@ -223,7 +236,7 @@ function enableGeolocation(map, areaMarkers) {
     },
   };
 
-  const control = L.control.locate(options).addTo(map);
+  const control = L.control.locate(options).addTo(map.leafletMap);
   // Add a user-triggered (mandatory) request for orientation information,
   // otherwise we don't get a compass from Leaflet.Locate
   L.DomEvent.on(control._link, 'click', function() {

@@ -46,10 +46,9 @@ async function fetchWithBackup(dataFiles, testFiles) {
 }
 
 function drawInterestingAreas(map, areas, prefs) {
-  // Create a circle per area
   return areas
       .map(function(area) {
-        const marker = drawArea(prefs, map, area);
+        const marker = drawArea(prefs, area);
         area.marker = marker;
         return marker;
       })
@@ -116,7 +115,11 @@ async function main() {
 
   applyPreferencesToProperties(prefs, props);
 
+  // We should be able to turn off the areas, from the Layers Control
   const areaMarkers = drawInterestingAreas(map, areas, prefs);
+  const areaLayer = L.layerGroup(areaMarkers);
+  areaLayer.addTo(map.leafletMap);
+  map.layersControl.addOverlay(areaLayer, "Walking distances");
   const markers = drawMarkers(map, props, prefs);
 
   fitToMarkers(map, markers.concat(Array.from(areaMarkers.values())));

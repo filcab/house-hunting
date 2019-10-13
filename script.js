@@ -3,9 +3,6 @@
 // abstracted enough.
 const map = createAndAttachMap('map');
 
-// Distances are in meters
-const areaDiameter = 1600;
-
 // Actual data (not committed)
 const dataFiles = ['data-rm.json', 'data-otm.json'];
 const areaFiles = ['areas.json'];
@@ -48,15 +45,11 @@ async function fetchWithBackup(dataFiles, testFiles) {
   return fetched;
 }
 
-// Interesting areas:
-// We'll draw a circle ${areaDiameter} wide around each of these. In the future,
-// we should be able to have a query and ask some geocoding service. For now,
-// hardcode coordinates.
 function drawInterestingAreas(map, areas, prefs) {
   // Create a circle per area
   return areas
       .map(function(area) {
-        const marker = drawArea(prefs, map, area, areaDiameter);
+        const marker = drawArea(prefs, map, area);
         area.marker = marker;
         return marker;
       })

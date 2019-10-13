@@ -71,18 +71,49 @@ function createAndAttachMap(divId) {
   return map;
 }
 
-function drawArea(prefs, map, area, diameter) {
+function footAreaStyle(area) {
+  // Compare against certain circle areas for deciding how to colour isochrones.
+  // Radius in m, area in m^2
+  const radius2Area = r => Math.PI * r * r;
+
+  let color = '#ff0055';
+  if (area < radius2Area(500))
+    color = '#00ff55';
+  else if (area < radius2Area(1000))
+    color = '#aaff55';
+  else if (area < radius2Area(1500))
+    color = '#ffaa55';
+
+  return {
+    color: color,
+    fill: false,
+    weight: 1,
+  };
+}
+
+function drawGeoJSONArea(prefs, map, area) {
+  const drawn = L.geoJSON(
+      area.geojson, {style: feature => footAreaStyle(feature.properties.area)});
+  drawn.addTo(map);
+  return drawn;
+}
+
+function drawArea(prefs, map, area) {
+  if (area.type == 'geojson')
+    return drawGeoJSONArea(prefs, map, area);
+
   if (area.type != 'circle') {
     console.error(`Unknown area type: ${area.type}. Ignoring`);
     return;
   }
+
   const circle = L.circle(area.loc, {
     color: '#a00',
     opacity: 0.5,
     weight: 1,
     fillColor: '#0a0',
     fillOpacity: 0.05,
-    radius: diameter,
+    radius: area.radius,
   });
   circle.area = area;
   circle.addTo(map);

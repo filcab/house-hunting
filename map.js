@@ -103,19 +103,33 @@ function calculatePopupMaxWidth() {
 }
 const popupMaxWidth = calculatePopupMaxWidth();
 
-function setHighlightStyle(prefs, marker) {
+function setMarkerHighlightStyle(marker) {
+  const markerClasses =
+      ['marker-ok', 'marker-ng', 'marker-sold', 'marker-scheduled'];
   const p = marker.property;
+  // FIXME: We should be using Leaflet.Icon instead of changing the style!
+  // Remove all out marker classes first, then re-add whichever we need
+  marker._icon.classList.remove.apply(marker._icon.classList, markerClasses);
 
-  // Priority (last one sticks):
-  //   "Our" highlights
-  //   "Sold STC"
-  //   ??
-  const shouldHighlight = prefs.highlight.indexOf(p.id) != -1;
-  if (shouldHighlight)
-    marker.getElement().classList.add('marker-highlight');
+  // Priority (first one to match):
+  //   sold
+  //   scheduled
+  //   ng
+  //   ok
+  // We shouldn't really have ok + ng, though
 
-  if (p.tags && p.tags.includes('Sold STC'))
+  if (p.tags && p.tags.includes('Sold STC')) {
     marker.getElement().classList.add('marker-sold');
+    return;
+  }
+
+  for (const [type, props] of Object.entries(getPrefs().highlights)) {
+    const shouldHighlight = props.indexOf(p.id) != -1;
+    if (shouldHighlight) {
+      marker.getElement().classList.add(`marker-${type}`);
+      return;
+    }
+  }
 }
 
 function addProperty(prefs, map, p, popupFunction) {
@@ -127,7 +141,7 @@ function addProperty(prefs, map, p, popupFunction) {
 
   // Has to be called only after adding to the map, otherwise we don't have an
   // element/style yet
-  setHighlightStyle(prefs, marker)
+  setMarkerHighlightStyle(marker)
 
   return marker;
 }

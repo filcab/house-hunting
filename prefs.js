@@ -2,11 +2,40 @@ const PREFS_URL = 'dynamic/preferences';
 
 function makeDefaultPrefs() {
   return {
-    highlight: []
+    highlights: {},
   };
 }
 
-// I've asked the experts and they mentioned keeping it simple.
+function autoUpgradePreferences(prefs) {
+  if (prefs.highlight) {
+    const oldHighlights = prefs.highlight;
+    delete prefs.highlight;
+    prefs.highlights = { 'scheduled': oldHighlights };
+  }
+  return prefs;
+}
+
+// Changing preferences should always be done via these functions
+function toggleNamedHighlight(prefs, prop, name, state) {
+  const namedHighlights =
+      prefs.highlights[name] || (prefs.highlights[name] = []);
+  prefs.highlights[name] = namedHighlights;
+  if (state) {
+    console.assert(namedHighlights.indexOf(prop.id) == -1);
+    namedHighlights.push(prop.id);
+    prop.highlight = name;
+  } else {
+    const idx = namedHighlights.indexOf(prop.id);
+    console.assert(idx != -1);
+    namedHighlights.splice(idx, 1);
+    // Make sure there's no more occurences of prop.id
+    console.assert(namedHighlights.indexOf(prop.id) == -1);
+    console.assert(prop.highlight == name);
+    delete prop.highlight;
+  }
+}
+
+// I've asked the experts and they suggested keeping it simple.
 async function loadPreferences() {
   const response =
       await fetch(PREFS_URL).then(x => x.json()).catch(function(error) {
@@ -22,8 +51,9 @@ async function loadPreferences() {
 
   try {
     const prefs = JSON.parse(response.prefs);
-    console.debug('loaded prefs:', prefs);
-    return prefs;
+    const newPrefs = autoUpgradePreferences(prefs);
+    console.debug('loaded prefs:', newPrefs);
+    return newPrefs;
   } catch (e) {
     console.error(`Exception: ${e}`);
     console.error('Couldn\'t parse pref response:')

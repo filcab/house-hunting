@@ -31,11 +31,12 @@ function anchor(url, text) {
 // In order to support multiple effects, we can provide several span classes.
 // The function will create a span with the first class and the passed
 // textContent. Then place than in another span, with the next class, etc.
-function emojiCheckbox(nestedSpanClasses, textContent, onChange) {
+function emojiCheckbox(name, textContent, nestedSpanClasses, onChange) {
   const checkbox = element('label');
   const buttonInput = element('input');
   buttonInput.type = 'checkbox';
   buttonInput.className = 'hide-checkbox';
+  buttonInput.name = name;
   if (onChange)
     buttonInput.addEventListener('change', onChange);
 
@@ -46,6 +47,7 @@ function emojiCheckbox(nestedSpanClasses, textContent, onChange) {
     buttonText = newElement;
   });
   checkbox.appendChild(buttonInput);
+  checkbox.input = buttonInput;
   checkbox.appendChild(buttonText);
   return checkbox;
 }
@@ -74,6 +76,19 @@ async function setupPostCodeInfo(elem, p) {
     elem.textContent = first_result.postcode;
     elem.style.display = 'block';
   }
+}
+
+const markerHighlightClasses = ['marker-ok', 'marker-ng', 'marker-scheduled'];
+function checkboxHandler(prop, event) {
+  const highlight_name = event.target.name;
+  console.log(
+      `Toggling highlight '${highlight_name}' (checked=${event.target.checked}) for prop ${prop.id} with event`,
+      event);
+  // FIXME: ugh
+  const prefs = getPrefs();
+  toggleNamedHighlight(prefs, prop, highlight_name, event.target.checked);
+  setMarkerHighlightStyle(prop.marker);
+  savePreferences(prefs)
 }
 
 // Function that builds a popup for a marker.
@@ -140,8 +155,21 @@ function propertyPopup(marker) {
   info.appendChild(summary);
 
   const buttons = div('popup-buttons');
-  buttons.appendChild(emojiCheckbox(['checkbox-ok', 'emoji-checkbox-faded'], '🆗'));
-  buttons.appendChild(emojiCheckbox(['checkbox-ng', 'emoji-checkbox-faded'], '🆖'));
+  const scheduledCheckbox = emojiCheckbox(
+      'scheduled', '📅', ['checkbox-scheduled', 'emoji-checkbox'],
+      checkboxHandler.bind(null, prop))
+  scheduledCheckbox.input.checked = prop.highlight == 'scheduled';
+  buttons.appendChild(scheduledCheckbox);
+  const okCheckbox = emojiCheckbox(
+      'ok', '🆗', ['checkbox-ok', 'emoji-checkbox-faded'],
+      checkboxHandler.bind(null, prop))
+  okCheckbox.input.checked = prop.highlight == 'ok';
+  buttons.appendChild(okCheckbox);
+  const ngCheckbox = emojiCheckbox(
+      'ng', '🆖', ['checkbox-ng', 'emoji-checkbox-faded'],
+      checkboxHandler.bind(null, prop));
+  ngCheckbox.input.checked = prop.highlight == 'ng';
+  buttons.appendChild(ngCheckbox);
   info.appendChild(buttons);
 
   return contents;

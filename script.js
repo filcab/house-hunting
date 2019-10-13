@@ -66,7 +66,7 @@ function drawInterestingAreas(map, areas, prefs) {
 
 function drawMarkers(map, props, prefs) {
   // Add markers for all the properties we care about
-  return props.map(function(prop) {
+  return Array.from(props.values(), function(prop) {
     const marker = addProperty(prefs, map, prop, propertyPopup);
     prop.marker = marker;
     return marker;
@@ -75,6 +75,12 @@ function drawMarkers(map, props, prefs) {
 
 // Global data, for ease of access, mostly
 document.data = {};
+
+// global utility functions
+// These functions are only valid after the initial part of the main() function
+const getPrefs = () => document.data.prefs;
+const getAreas = () => document.data.areas;
+const getProps = () => document.data.props;
 
 function adjustTitleIfDev() {
   // Don't ever set more than once
@@ -86,6 +92,13 @@ function adjustTitleIfDev() {
     document.title += ' (dev)'
 }
 
+function applyPreferencesToProperties(prefs, props) {
+  const highlights = prefs.highlights;
+  for (const [name, propIDs] of Object.entries(highlights)) {
+    propIDs.map(id => props.get(id).highlight = name);
+  }
+}
+
 async function main() {
   adjustTitleIfDev();
 
@@ -95,9 +108,12 @@ async function main() {
   const areas = await fetchWithBackup(areaFiles, testAreas);
   document.data.areas = areas;
   console.info('areas', areas);
-  const props = await fetchWithBackup(dataFiles, testFiles);
+  const propList = await fetchWithBackup(dataFiles, testFiles);
+  const props = new Map(propList.map(prop => [prop.id, prop]));
   document.data.props = props;
   console.info('props', props);
+
+  applyPreferencesToProperties(prefs, props);
 
   const areaMarkers = drawInterestingAreas(map, areas, prefs);
   const markers = drawMarkers(map, props, prefs);

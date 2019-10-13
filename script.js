@@ -88,7 +88,15 @@ function adjustTitleIfDev() {
 function applyPreferencesToProperties(prefs, props) {
   const highlights = prefs.highlights;
   for (const [name, propIDs] of Object.entries(highlights)) {
-    propIDs.map(id => props.get(id).highlight = name);
+    propIDs.forEach(function(id) {
+      const prop = props.get(id);
+      if (prop === undefined) {
+        // FIXME: Add a proper (user-visible) warning
+        console.warn(`Property ID #${id} has a highlight, but the property doesn't exist!`);
+        return;
+      }
+      props.get(id).highlight = name;
+    });
   }
 }
 

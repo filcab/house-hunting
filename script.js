@@ -94,9 +94,14 @@ function applyPreferencesToProperties(prefs, props) {
         console.warn(`Property ID #${id} has a highlight, but the property doesn't exist!`);
         return;
       }
-      props.get(id).highlight = name;
+      props.get(id).highlights.push(name);
     });
   }
+}
+
+function initializeProp(prop) {
+  prop.highlights = [];
+  return prop;
 }
 
 async function main() {
@@ -109,7 +114,7 @@ async function main() {
   document.data.areas = areas;
   console.info('areas', areas);
   const propList = await fetchWithBackup(dataFiles, testFiles);
-  const props = new Map(propList.map(prop => [prop.id, prop]));
+  const props = new Map(propList.map(prop => [prop.id, initializeProp(prop)]));
   document.data.props = props;
   console.info('props', props);
 

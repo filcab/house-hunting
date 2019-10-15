@@ -78,7 +78,6 @@ async function setupPostCodeInfo(elem, p) {
   }
 }
 
-const markerHighlightClasses = ['marker-ok', 'marker-ng', 'marker-scheduled'];
 function checkboxHandler(prop, event) {
   const highlight_name = event.target.name;
   console.log(
@@ -87,8 +86,40 @@ function checkboxHandler(prop, event) {
   // FIXME: ugh
   const prefs = getPrefs();
   toggleNamedHighlight(prefs, prop, highlight_name, event.target.checked);
-  setMarkerHighlightStyle(prop.marker);
+  updateMarkerHighlightStyle(prop.marker);
   savePreferences(prefs)
+}
+
+function scheduledHandler(prop, event) {
+  checkboxHandler(prop, event);
+
+  // Additionally, deal with the datetime picker
+  const toAdd = event.target.checked ? 'popup-scheduled-date-visible' : 'popup-scheduled-date-invisible';
+  const toRemove = event.target.checked ? 'popup-scheduled-date-invisible' : 'popup-scheduled-date-visible';
+  prop.inputs.datetime.classList.add(toAdd);
+  prop.inputs.datetime.classList.remove(toRemove);
+}
+
+// Adds leading zeroes until number as a string has width chars
+function leadingZeroes(number, width) {
+  return String(number).padStart(width, '0');
+}
+
+function formatRoundedDate(d) {
+  // I don't care about robustly parsing dates. This is not fool-proof and
+  // shouldn't be used in production anywhere. This is only used for browsers
+  // which don't support <input type="datetime-local"> (e.g: Safari on macOS)
+  const twoDigitMonth = leadingZeroes(d.getMonth() + 1, 2);
+  const twoDigitDay = leadingZeroes(d.getDate(), 2);
+  let hours = d.getHours();
+  let roundedMinutes = Math.round(d.getMinutes() / 15) * 15;
+  if (roundedMinutes == 60) {
+    hours = hours == 23 ? 0 : hours + 1;
+    roundedMinutes = 0;
+  }
+  const twoDigitHours = leadingZeroes(hours, 2);
+  const twoDigitMinutes = leadingZeroes(roundedMinutes, 2);
+  return `${d.getFullYear()}/${twoDigitMonth}/${twoDigitDay} ${twoDigitHours}:${twoDigitMinutes}`;
 }
 
 // Function that builds a popup for a marker.
@@ -154,23 +185,56 @@ function propertyPopup(marker) {
   summary.textContent = prop.summary;
   info.appendChild(summary);
 
-  const buttons = div('popup-buttons');
+  const interactiveSection = div('popup-interactive');
+  const dateInput = element('input');
+  dateInput.type = 'datetime-local';
+  if (dateInput.type == 'text') {
+    // Add placeholder text in Safari for macOS. In that browser, the input type
+    // is not changed, as it doesn't support datetime-local (nor datetime)
+    dateInput.placeholder = formatRoundedDate(new Date());
+
+    // FIXME: Set the value if we have a date
+  }
+  dateInput.classList.add('popup-scheduled-date');
+  // FIXME: Start visible if it's set!
+  // Start hidden
+  const scheduledStartClass = prop.highlights.indexOf('scheduled') == -1 ?
+      'popup-scheduled-date-invisible' :
+      'popup-scheduled-date-visible';
+  dateInput.classList.add(scheduledStartClass);
+  dateInput.addEventListener('change', ev => alert(ev.target.value));
+  interactiveSection.appendChild(dateInput);
+
+
+  const buttons = span('popup-buttons');
   const scheduledCheckbox = emojiCheckbox(
       'scheduled', '📅', ['checkbox-scheduled', 'emoji-checkbox'],
-      checkboxHandler.bind(null, prop))
-  scheduledCheckbox.input.checked = prop.highlight == 'scheduled';
+      scheduledHandler.bind(null, prop))
+  scheduledCheckbox.input.checked = prop.highlights.indexOf('scheduled') != -1;
   buttons.appendChild(scheduledCheckbox);
   const okCheckbox = emojiCheckbox(
       'ok', '🆗', ['checkbox-ok', 'emoji-checkbox-faded'],
       checkboxHandler.bind(null, prop))
-  okCheckbox.input.checked = prop.highlight == 'ok';
+  okCheckbox.input.checked = prop.highlights.indexOf('ok') != -1;
   buttons.appendChild(okCheckbox);
   const ngCheckbox = emojiCheckbox(
       'ng', '🆖', ['checkbox-ng', 'emoji-checkbox-faded'],
       checkboxHandler.bind(null, prop));
-  ngCheckbox.input.checked = prop.highlight == 'ng';
+  ngCheckbox.input.checked = prop.highlights.indexOf('ng') != -1;
   buttons.appendChild(ngCheckbox);
-  info.appendChild(buttons);
+  interactiveSection.appendChild(buttons);
+
+  info.appendChild(interactiveSection);
+
+  // Have our inputs stored in an easily accessible object.
+  // The function binding the popup is in charge of deleting this prop.inputs
+  // object when the popup closes to be sure we don't use some outdated inputs.
+  prop.inputs = {
+    ok: okCheckbox.input,
+    ng: ngCheckbox.input,
+    schedule: scheduledCheckbox.input,
+    datetime: dateInput,
+  };
 
   return contents;
 }

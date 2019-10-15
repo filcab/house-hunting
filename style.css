@@ -66,6 +66,24 @@ html, body {
   font-size: 120%;
 }
 
+.popup-interactive {
+  width: 100%;
+  display: flex;
+  justify-content: safe flex-end;
+  align-items: safe center;
+}
+
+.popup-scheduled-date-invisible {
+  opacity: 0;
+}
+.popup-scheduled-date-visible {
+  opacity: 1;
+}
+.popup-scheduled-date {
+  font-size: 150%;
+  transition: opacity 0.5s ease;
+}
+
 .popup-info,
 .popup-summary {
   width: 100%;
@@ -77,7 +95,7 @@ html, body {
 
 .emoji-checkbox,
 .emoji-checkbox-faded {
-  font-size: 500%;
+  font-size: 400%;
 }
 
 .marker-sold {

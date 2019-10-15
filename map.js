@@ -171,7 +171,9 @@ function setMarkerHighlightStyle(marker) {
     return;
   }
 
-  for (const [type, props] of Object.entries(getPrefs().highlights)) {
+  const highlights = getPrefs().highlights;
+  for (const type of ['ng', 'ok', 'scheduled']) {
+    const props = highlights[type];
     const shouldHighlight = props.indexOf(p.id) != -1;
     if (shouldHighlight) {
       marker.getElement().classList.add(`marker-${type}`);
@@ -184,7 +186,13 @@ function addProperty(prefs, map, p, popupFunction) {
   const marker = L.marker(p.loc);
   marker.property = p;
 
+  // popupFunction will set marker.inputs = {...}
+  // Make sure we setup an event handler to delete it when popups close
   marker.bindPopup(popupFunction, {maxWidth: popupMaxWidth});
+  marker.on('popupclose', function(e) {
+    delete e.target.property.inputs;
+  });
+
   marker.addTo(map.leafletMap);
 
   // Has to be called only after adding to the map, otherwise we don't have an

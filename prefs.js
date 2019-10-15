@@ -23,15 +23,20 @@ function toggleNamedHighlight(prefs, prop, name, state) {
   if (state) {
     console.assert(namedHighlights.indexOf(prop.id) == -1);
     namedHighlights.push(prop.id);
-    prop.highlight = name;
+    console.assert(prop.highlights.indexOf(name) == -1);
+    prop.highlights.push(name);
   } else {
     const idx = namedHighlights.indexOf(prop.id);
     console.assert(idx != -1);
     namedHighlights.splice(idx, 1);
     // Make sure there's no more occurences of prop.id
     console.assert(namedHighlights.indexOf(prop.id) == -1);
-    console.assert(prop.highlight == name);
-    delete prop.highlight;
+
+    const highlightIdx = prop.highlights.indexOf(name);
+    console.assert(highlightIdx != -1);
+    prop.highlights.splice(highlightIdx, 1);
+    // Make sure there's no more occurences of the highlight name
+    console.assert(prop.highlights.indexOf(name) == -1);
   }
 }
 

@@ -69,8 +69,8 @@ async function loadPreferences() {
 
 async function savePreferences(prefs) {
   console.debug('saving prefs:', prefs);
-  const connection =
-      await fetch(PREFS_URL, {method: 'POST', body: JSON.stringify(prefs)});
+  const jsonPrefs = JSON.stringify(prefs);
+  const connection = await fetch(PREFS_URL, {method: 'POST', body: jsonPrefs});
   console.debug(connection);
   const response = await connection.json();
   if (response.result != 'ok') {
@@ -79,9 +79,8 @@ async function savePreferences(prefs) {
   }
 
   try {
-    const jsonResponse = JSON.parse(response.prefs);
-    if (jsonResponse != prefs)
-      console.warn(`oops. response: ${jsonResponse} != prefs: ${prefs}`);
+    if (response.prefs != jsonPrefs)
+      console.warn(`oops. response: ${response.prefs} != prefs: ${jsonPrefs}`);
   } catch (e) {
     console.error(`Exception: ${e}`);
     console.error('Couldn\'t parse pref response:')

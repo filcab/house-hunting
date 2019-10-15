@@ -151,7 +151,7 @@ function calculatePopupMaxWidth() {
 }
 const popupMaxWidth = calculatePopupMaxWidth();
 
-function setMarkerHighlightStyle(marker) {
+function updateMarkerHighlightStyle(marker) {
   const markerClasses =
       ['marker-ok', 'marker-ng', 'marker-sold', 'marker-scheduled'];
   const p = marker.property;
@@ -197,7 +197,7 @@ function addProperty(prefs, map, p, popupFunction) {
 
   // Has to be called only after adding to the map, otherwise we don't have an
   // element/style yet
-  setMarkerHighlightStyle(marker)
+  updateMarkerHighlightStyle(marker)
 
   return marker;
 }

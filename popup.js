@@ -196,13 +196,11 @@ function propertyPopup(marker) {
     // FIXME: Set the value if we have a date
   }
   dateInput.classList.add('popup-scheduled-date');
-  // FIXME: Start visible if it's set!
-  // Start hidden
   const scheduledStartClass = prop.highlights.indexOf('scheduled') == -1 ?
       'popup-scheduled-date-invisible' :
       'popup-scheduled-date-visible';
   dateInput.classList.add(scheduledStartClass);
-  dateInput.addEventListener('change', ev => alert(ev.target.value));
+  dateInput.addEventListener('change', ev => console.log(`date input: ${ev.target.value}`));
   interactiveSection.appendChild(dateInput);
 
 

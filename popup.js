@@ -90,14 +90,14 @@ function checkboxHandler(prop, event) {
   savePreferences(prefs)
 }
 
-function scheduledHandler(prop, event) {
+function scheduledHandler(prop, input, event) {
   checkboxHandler(prop, event);
 
   // Additionally, deal with the datetime picker
   const toAdd = event.target.checked ? 'popup-scheduled-date-visible' : 'popup-scheduled-date-invisible';
   const toRemove = event.target.checked ? 'popup-scheduled-date-invisible' : 'popup-scheduled-date-visible';
-  prop.inputs.datetime.classList.add(toAdd);
-  prop.inputs.datetime.classList.remove(toRemove);
+  input.classList.add(toAdd);
+  input.classList.remove(toRemove);
 }
 
 // Adds leading zeroes until number as a string has width chars
@@ -209,7 +209,7 @@ function propertyPopup(marker) {
   const buttons = span('popup-buttons');
   const scheduledCheckbox = emojiCheckbox(
       'scheduled', '📅', ['checkbox-scheduled', 'emoji-checkbox'],
-      scheduledHandler.bind(null, prop))
+      scheduledHandler.bind(null, prop, dateInput))
   scheduledCheckbox.input.checked = prop.highlights.indexOf('scheduled') != -1;
   buttons.appendChild(scheduledCheckbox);
   const okCheckbox = emojiCheckbox(

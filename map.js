@@ -146,7 +146,7 @@ function calculatePopupMaxWidth() {
   if (window.innerWidth > 1024) {
     return window.innerWidth * 0.40;
   } else {
-    return window.innerWidth * 0.85;
+    return window.innerWidth * 0.90;
   }
 }
 const popupMaxWidth = calculatePopupMaxWidth();

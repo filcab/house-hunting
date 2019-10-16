@@ -2,7 +2,7 @@ const PREFS_URL = 'dynamic/preferences';
 
 function makeDefaultPrefs() {
   return {
-    highlights: {},
+    highlights: {scheduled: [], ok: [], ng: []},
     scheduled: {},
   };
 }

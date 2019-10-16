@@ -13,6 +13,11 @@ function autoUpgradePreferences(prefs) {
     delete prefs.highlight;
     prefs.highlights = { 'scheduled': oldHighlights };
   }
+
+  // Make sure our highlight arrays exists
+  for (const name of ['ng', 'ok', 'scheduled'])
+      prefs.highlights[name] = prefs.highlights[name] || [];
+
   prefs.scheduled = (prefs.scheduled || {});
   return prefs;
 }

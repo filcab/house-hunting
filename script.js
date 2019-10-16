@@ -85,18 +85,39 @@ function adjustTitleIfDev() {
 }
 
 function applyPreferencesToProperties(prefs, props) {
-  const highlights = prefs.highlights;
-  for (const [name, propIDs] of Object.entries(highlights)) {
+  for (const [name, propIDs] of Object.entries(prefs.highlights)) {
     propIDs.forEach(function(id) {
       const prop = props.get(id);
       if (prop === undefined) {
         // FIXME: Add a proper (user-visible) warning
-        console.warn(`Property ID #${id} has a highlight, but the property doesn't exist!`);
+        console.warn(`Property ID #${
+            id} has a highlight, but the property doesn't exist!`);
         return;
       }
       props.get(id).highlights.push(name);
     });
   }
+
+  const subsequentlyRemoved = [];
+  for (const [idString, date] of Object.entries(prefs.scheduled)) {
+    // Assume well-formed
+    const id = Number(idString);
+    if (!props.has(id)) {
+      subsequentlyRemoved.push(id);
+      continue;
+    }
+
+    // Assume dates are ok (they should be if we've set them)
+    // Not much we can do: keys in JSON *must* be strings
+    // I'm unsure what the best practices are in JS. For now, handling this
+    // manually by converting what we get from keys from preferences into
+    // numbers to get props by ID.
+    props.get(id).scheduled = new Date(date);
+  }
+
+  // FIXME: For now, there's not much a user can do... fix it
+  if (subsequentlyRemoved.length)
+    alert(`These properties got removed, but are still scheduled: ${subsequentlyRemoved}`);
 }
 
 function initializeProp(prop) {

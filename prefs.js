@@ -3,6 +3,7 @@ const PREFS_URL = 'dynamic/preferences';
 function makeDefaultPrefs() {
   return {
     highlights: {},
+    scheduled: {},
   };
 }
 
@@ -12,6 +13,7 @@ function autoUpgradePreferences(prefs) {
     delete prefs.highlight;
     prefs.highlights = { 'scheduled': oldHighlights };
   }
+  prefs.scheduled = (prefs.scheduled || {});
   return prefs;
 }
 
@@ -38,6 +40,18 @@ function toggleNamedHighlight(prefs, prop, name, state) {
     // Make sure there's no more occurences of the highlight name
     console.assert(prop.highlights.indexOf(name) == -1);
   }
+}
+
+function unscheduleVisit(prefs, prop) {
+  console.log('Removing visit date');
+  delete prefs.scheduled[prop.id];
+  delete prop.scheduled;
+}
+
+function scheduleVisit(prefs, prop, datetime) {
+  console.log(`Visiting ${prop.id} on ${datetime}`);
+  prefs.scheduled[prop.id] = datetime;
+  prop.scheduled = datetime;
 }
 
 // I've asked the experts and they suggested keeping it simple.

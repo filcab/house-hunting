@@ -90,6 +90,40 @@ function checkboxHandler(prop, event) {
   savePreferences(prefs)
 }
 
+// Please don't use this
+function myDateParse(date) {
+    let maybeDate = new Date(date);
+    if (!isNaN(maybeDate))
+        return { result: 'ok', date: maybeDate };
+
+    maybeDate = new Date(date.replace(/-/g, '/'));
+    if (!isNaN(maybeDate))
+        return { result: 'ok', date: maybeDate };
+
+    return { result: 'error', error: `Bad date format: ${date}, use YYYY/MM/DD HH:MM` };
+}
+
+function onScheduledDateChange(prop, ev) {
+  console.log(`onScheduledDateChange(prop.id: ${prop.id})`);
+  console.log(ev);
+
+  const datetime = ev.target.value;
+  const prefs = getPrefs();
+  if (datetime) {
+    const parsedDate = myDateParse(ev.target.value);
+    console.log(`date: ${parsedDate}`);
+    if (parsedDate.result != 'ok') {
+      alert(`${parsedDate.result}: ${parsedDate.error}`);
+      return;
+    }
+
+    scheduleVisit(prefs, prop, parsedDate.date);
+  } else {
+    unscheduleVisit(prefs, prop);
+  }
+  savePreferences(prefs);
+}
+
 function scheduledHandler(prop, input, event) {
   checkboxHandler(prop, event);
 
@@ -188,19 +222,22 @@ function propertyPopup(marker) {
   const interactiveSection = div('popup-interactive');
   const dateInput = element('input');
   dateInput.type = 'datetime-local';
+  if (prop.scheduled)
+    dateInput.value = prop.scheduled;
+
   if (dateInput.type == 'text') {
     // Add placeholder text in Safari for macOS. In that browser, the input type
     // is not changed, as it doesn't support datetime-local (nor datetime)
     dateInput.placeholder = formatRoundedDate(new Date());
 
-    // FIXME: Set the value if we have a date
+    dateInput.value = formatRoundedDate(prop.scheduled);
   }
   dateInput.classList.add('popup-scheduled-date');
   const scheduledStartClass = prop.highlights.indexOf('scheduled') == -1 ?
       'popup-scheduled-date-invisible' :
       'popup-scheduled-date-visible';
   dateInput.classList.add(scheduledStartClass);
-  dateInput.addEventListener('change', ev => console.log(`date input: ${ev.target.value}`));
+  dateInput.addEventListener('change', onScheduledDateChange.bind(null, prop));
   interactiveSection.appendChild(dateInput);
 
 

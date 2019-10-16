@@ -230,7 +230,8 @@ function propertyPopup(marker) {
     // is not changed, as it doesn't support datetime-local (nor datetime)
     dateInput.placeholder = formatRoundedDate(new Date());
 
-    dateInput.value = formatRoundedDate(prop.scheduled);
+    if (prop.scheduled)
+      dateInput.value = formatRoundedDate(prop.scheduled);
   }
   dateInput.classList.add('popup-scheduled-date');
   const scheduledStartClass = prop.highlights.indexOf('scheduled') == -1 ?

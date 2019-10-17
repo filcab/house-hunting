@@ -91,16 +91,32 @@ function checkboxHandler(prop, event) {
 }
 
 // Please don't use this
-function myDateParse(date) {
-    let maybeDate = new Date(date);
-    if (!isNaN(maybeDate))
-        return { result: 'ok', date: maybeDate };
+function dateForDatetimeInput(date) {
+  return date.toISOString().slice(0, -1)
+}
+function myDateParse(date, timezoneAdjust) {
+  let maybeDate = new Date(date);
+  if (!isNaN(maybeDate)) {
+    if (timezoneAdjust)
+      // Update according to our timezone offset and get a UTC time
+      maybeDate.setMinutes(
+          maybeDate.getMinutes() - maybeDate.getTimezoneOffset());
+    return {result: 'ok', date: maybeDate};
+  }
 
-    maybeDate = new Date(date.replace(/-/g, '/'));
-    if (!isNaN(maybeDate))
-        return { result: 'ok', date: maybeDate };
+  maybeDate = new Date(date.replace(/-/g, '/'));
+  if (!isNaN(maybeDate)) {
+    if (timezoneAdjust)
+      // Update according to our timezone offset and get a UTC time
+      maybeDate.setMinutes(
+          maybeDate.getMinutes() - maybeDate.getTimezoneOffset());
+    return {result: 'ok', date: maybeDate};
+  }
 
-    return { result: 'error', error: `Bad date format: ${date}, use YYYY/MM/DD HH:MM` };
+  return {
+    result: 'error',
+    error: `Bad date format: ${date}, use YYYY/MM/DD HH:MM`
+  };
 }
 
 function onScheduledDateChange(prop, ev) {
@@ -110,14 +126,18 @@ function onScheduledDateChange(prop, ev) {
   const datetime = ev.target.value;
   const prefs = getPrefs();
   if (datetime) {
-    const parsedDate = myDateParse(ev.target.value);
+    const parsedDate = myDateParse(ev.target.value, ev.target.type == 'text');
     console.log(`date: ${parsedDate}`);
     if (parsedDate.result != 'ok') {
       alert(`${parsedDate.result}: ${parsedDate.error}`);
       return;
     }
 
-    scheduleVisit(prefs, prop, parsedDate.date);
+    const date = roundedDate(parsedDate.date);
+    scheduleVisit(prefs, prop, date);
+    // Adjust the field value after rounding
+    ev.target.value = ev.target.type == 'text' ? formatDate(date, true) :
+                                                 dateForDatetimeInput(date);
   } else {
     unscheduleVisit(prefs, prop);
   }
@@ -139,20 +159,34 @@ function leadingZeroes(number, width) {
   return String(number).padStart(width, '0');
 }
 
-function formatRoundedDate(d) {
-  // I don't care about robustly parsing dates. This is not fool-proof and
+function roundedDate(inputDate) {
+  // Don't update the provided object, copy it and update the new one
+  const d = new Date(inputDate);
+
+  let roundedMinutes = Math.round(d.getMinutes() / 15) * 15;
+  d.setMinutes(roundedMinutes);
+
+  return d;
+}
+
+function formatRoundedDate(inputDate, timezoneAdjust) {
+  return formatDate(roundedDate(inputDate), timezoneAdjust);
+}
+
+function formatDate(inputDate, timezoneAdjust) {
+  const d = new Date(inputDate);
+
+  if (timezoneAdjust)
+    // Update according to our timezone offset and get a local time
+    d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+
+  // I don't care about robustly working with dates. This is not fool-proof and
   // shouldn't be used in production anywhere. This is only used for browsers
   // which don't support <input type="datetime-local"> (e.g: Safari on macOS)
   const twoDigitMonth = leadingZeroes(d.getMonth() + 1, 2);
   const twoDigitDay = leadingZeroes(d.getDate(), 2);
-  let hours = d.getHours();
-  let roundedMinutes = Math.round(d.getMinutes() / 15) * 15;
-  if (roundedMinutes == 60) {
-    hours = hours == 23 ? 0 : hours + 1;
-    roundedMinutes = 0;
-  }
-  const twoDigitHours = leadingZeroes(hours, 2);
-  const twoDigitMinutes = leadingZeroes(roundedMinutes, 2);
+  const twoDigitHours = leadingZeroes(d.getHours(), 2);
+  const twoDigitMinutes = leadingZeroes(d.getMinutes(), 2);
   return `${d.getFullYear()}/${twoDigitMonth}/${twoDigitDay} ${twoDigitHours}:${twoDigitMinutes}`;
 }
 
@@ -222,16 +256,17 @@ function propertyPopup(marker) {
   const interactiveSection = div('popup-interactive');
   const dateInput = element('input');
   dateInput.type = 'datetime-local';
+  dateInput.step = 15*60;
   if (prop.scheduled)
-    dateInput.value = prop.scheduled.toISOString().slice(0, -1);
+    dateInput.value = dateForDatetimeInput(prop.scheduled);
 
   if (dateInput.type == 'text') {
     // Add placeholder text in Safari for macOS. In that browser, the input type
     // is not changed, as it doesn't support datetime-local (nor datetime)
-    dateInput.placeholder = formatRoundedDate(new Date());
+    dateInput.placeholder = formatRoundedDate(new Date(), true);
 
     if (prop.scheduled)
-      dateInput.value = formatRoundedDate(prop.scheduled);
+      dateInput.value = formatDate(prop.scheduled, true);
   }
   dateInput.classList.add('popup-scheduled-date');
   const scheduledStartClass = prop.highlights.indexOf('scheduled') == -1 ?

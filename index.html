@@ -24,7 +24,9 @@
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 
 		<!-- Leaflet stuff from the Quickstart Guide -->
-		<script defer src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+		<!--script defer src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script-->
+		<!-- Use bundled leaflet.js until commit 747b1f7 (iOS13 double-tap to zoom fixes) gets published in a version -->
+		<script defer src="leaflet.js"></script>
 
 		<!-- Leaflet + Mapbox GL integration (for vector tiles) -->
 		<!-- Mapbox GL -->

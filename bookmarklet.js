@@ -10,12 +10,17 @@ const makeAbsoluteUrl = relativeUrl => new URL(relativeUrl, window.location);
 // The textarea element allows us to do a "select all" inside it easily
 const divClass = 'bookmarklet-property-data';
 
-function displayData(data) {
+function displayData(data, filename) {
   // First remove any old one that might be there (Browser is likely to not
   // repaint it. I've checked that it works with a sleep-like call.
   const old = document.getElementById(divClass);
-  if (old != undefined)
+  if (old != undefined) {
+    const download = document.getElementById('download-link');
+    if (download)
+      URL.revokeObjectURL(download.href);
+
     old.parentElement.removeChild(old);
+  }
 
   const div = document.createElement('div');
   div.setAttribute('id', divClass);
@@ -42,13 +47,25 @@ function displayData(data) {
   labelStyle.fontSize = '125%25';
   label.textContent = 'Data gathered and cleaned up. Contents:';
   div.appendChild(label);
-  const date = document.createElement('span');
-  date.textContent = new Date();
-  date.style.display = 'inline';
-  date.style.textColot = 'grey';
-  date.style.display = 'float';
-  date.style.float = 'right';
-  div.appendChild(date);
+  const dateAndDownload = document.createElement('span');
+  dateAndDownload.textContent = new Date();
+  dateAndDownload.style.display = 'inline';
+  dateAndDownload.style.textColot = 'grey';
+  dateAndDownload.style.display = 'float';
+  dateAndDownload.style.float = 'right';
+
+  const download = document.createElement('a');
+  download.id = 'download-link'
+  download.href = URL.createObjectURL(new Blob([data]));
+  download.download = filename;
+  // Use a button instead of a link, by having the button inside the <a>
+  const button = document.createElement('button');
+  button.textContent = 'Download';
+  download.appendChild(button);
+  dateAndDownload.appendChild(download);
+
+  div.appendChild(dateAndDownload);
+
 
   const textarea = document.createElement('textarea');
   textarea.setAttribute('id', 'bookmarkletDataContents');
@@ -118,7 +135,7 @@ async function OnTheMarket() {
   const propDivs = new Map(Array.prototype.map.call(queryResults, to_kv));
 
   const objs = await Promise.all(propIds.map(prop => fetchIdToCommon(prop, propDivs)));
-  displayData(JSON.stringify(objs));
+  displayData(JSON.stringify(objs), 'data-otm.json');
 }
 
 function RightMove() {
@@ -242,7 +259,7 @@ function RightMove() {
         return mergeLists(shortlist, idMapData).filter(Boolean);
       })
       .then(JSON.stringify)
-      .then(displayData);
+      .then(data => displayData(data, 'data-rm.json'));
 }
 
 const functions = {

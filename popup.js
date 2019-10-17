@@ -223,7 +223,7 @@ function propertyPopup(marker) {
   const dateInput = element('input');
   dateInput.type = 'datetime-local';
   if (prop.scheduled)
-    dateInput.value = prop.scheduled;
+    dateInput.value = prop.scheduled.toISOString().slice(0, -1);
 
   if (dateInput.type == 'text') {
     // Add placeholder text in Safari for macOS. In that browser, the input type

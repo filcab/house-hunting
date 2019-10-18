@@ -81,7 +81,7 @@ html, body {
 }
 .popup-scheduled-date {
   font-size: 150%;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.5s;
 }
 
 .popup-info,
@@ -123,17 +123,17 @@ html, body {
 
 .hide-checkbox + .emoji-checkbox,
 .hide-checkbox + .emoji-checkbox-faded {
-  transition: filter ease 0.2s;
+  transition: filter 0.2s;
   filter: grayscale(1);
 }
 
 /* For non-faded icons: Don't saturate at all */
 .hide-checkbox:checked + .emoji-checkbox {
-  transition: filter ease 0.2s;
+  transition: filter 0.2s;
   filter: none;
 }
 
 .hide-checkbox:checked + .emoji-checkbox-faded {
-  transition: filter ease 0.2s;
+  transition: filter 0.2s;
   filter: saturate(3);
 }

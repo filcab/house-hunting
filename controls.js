@@ -35,7 +35,8 @@ const Schedule = L.Control.extend({
   },
 
   _minimize: function(ev) {
-    this._toggleVisibility(this._button, this._scheduleDiv);
+    if (this._scheduleDiv)
+      this._toggleVisibility(this._button, this._scheduleDiv);
   },
 
   _openSchedule: function(ev) {

@@ -309,3 +309,77 @@ function propertyPopup(marker) {
 
   return contents;
 }
+
+function addPropertyPopup(map, popup, coords) {
+  const contents = div('popup-contents');
+
+  const header = div('save-popup-warning');
+  contents.appendChild(header);
+  const nameInput = element('input');
+  nameInput.style.display = 'block';
+  nameInput.placeholder = 'Name';
+  contents.appendChild(nameInput);
+  const streetInput = element('input');
+  streetInput.style.display = 'block';
+  streetInput.placeholder = 'Street';
+  contents.appendChild(streetInput);
+  const priceInput = element('input');
+  priceInput.style.display = 'block';
+  priceInput.type = 'number';
+  priceInput.inputmode = 'numeric';
+  priceInput.placeholder = 'Price';
+  priceInput.min = 1000;
+  priceInput.max = 1000000;
+  priceInput.step = 500;
+  contents.appendChild(priceInput);
+  const phoneInput = element('input');
+  phoneInput.style.display = 'block';
+  phoneInput.type = 'tel';
+  phoneInput.placeholder = 'Phone';
+  contents.appendChild(phoneInput);
+  const agentInput = element('input');
+  agentInput.style.display = 'block';
+  agentInput.placeholder = 'Agent';
+  contents.appendChild(agentInput);
+  const notesInput =  element('textarea');
+  notesInput.style.display = 'block';
+  notesInput.placeholder = 'Notes';
+  contents.appendChild(notesInput);
+
+  const saveButton = element('button');
+  saveButton.textContent = 'Save';
+  saveButton.addEventListener('click', function(ev) {
+    // First validate that we have proper info
+    const mandatoryInputs = [nameInput, streetInput, priceInput, phoneInput, agentInput];
+    let failed = false;
+    for (const input of mandatoryInputs) {
+      const bad = input.value == '';
+      failed = failed || bad;
+      // Reset all borders, as inputs might have been "bad" and then got fixed
+      // between the last click and this one.
+      input.style.border = bad ? '1px red dashed' : '';
+    }
+
+    if (failed) {
+      header.textContent = 'Please fill out all fields';
+      return;
+    }
+
+    const prop = {id: nextPropId()};
+    // This will JSON.stringify correctly, only yielding lat and lng properties
+    prop.loc = coords;
+    prop.price = {display: `£ ${priceInput.value}`};
+    prop.agent = {phone: phoneInput.value};
+    prop.url = '#';
+    prop.desc = nameInput.value;
+    prop.addr = streetInput.value;
+    prop.summary = notesInput.value;
+    prop.editable = true;
+
+    addPropertyManually(map, getPrefs(), prop);
+    popup.remove();
+  });
+  contents.appendChild(saveButton);
+
+  return contents;
+}

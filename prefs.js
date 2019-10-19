@@ -4,6 +4,7 @@ function makeDefaultPrefs() {
   return {
     highlights: {scheduled: [], ok: [], ng: []},
     scheduled: {},
+    manuallyAdded: [],
   };
 }
 
@@ -19,6 +20,7 @@ function autoUpgradePreferences(prefs) {
       prefs.highlights[name] = prefs.highlights[name] || [];
 
   prefs.scheduled = (prefs.scheduled || {});
+  prefs.manuallyAdded = (prefs.manuallyAdded || {});
   return prefs;
 }
 
@@ -57,6 +59,27 @@ function scheduleVisit(prefs, prop, datetime) {
   console.log(`Visiting ${prop.id} on ${datetime}`);
   prefs.scheduled[prop.id] = datetime;
   prop.scheduled = datetime;
+}
+
+function addPropertyManually(map, prefs, prop) {
+  initializeProp(prop);
+
+  // For now, make sure that prop.id isn't in prefs.
+  // It should never happen, but just in case...
+  for (const p of prefs.manuallyAdded)
+    // Make sure it works even if we have some values as strings, others as numbers
+    console.assert(p.id != prop.id && Number(p.id) != Number(prop.id));
+
+  prefs.manuallyAdded.push(prop);
+  const marker = addProperty(prefs, map, prop, propertyPopup);
+  // Cheat for now. We should change things so markers have a propID, but not a
+  // property pointer. That way we can treat manually-added properties the same
+  // way as other properties.
+  // FIXME: Properly split property definitions (persistent) from added
+  // information (transient information (e.g: markers)).
+  Object.defineProperty(prop, 'marker', {enumerable: false, value: marker});
+
+  savePreferences(prefs);
 }
 
 // I've asked the experts and they suggested keeping it simple.

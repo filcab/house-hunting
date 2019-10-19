@@ -60,7 +60,12 @@ function drawMarkers(map, props, prefs) {
   // Add markers for all the properties we care about
   return Array.from(props.values(), function(prop) {
     const marker = addProperty(prefs, map, prop, propertyPopup);
-    prop.marker = marker;
+    // Cheat for now. We should change things so markers have a propID, but not
+    // a property pointer. That way we can treat manually-added properties the
+    // same way as other properties.
+    // FIXME: Properly split property definitions (persistent) from added
+    // information (transient information (e.g: markers)).
+    Object.defineProperty(prop, 'marker', {enumerable: false, value: marker});
     return marker;
   });
 }
@@ -121,8 +126,17 @@ function applyPreferencesToProperties(prefs, props) {
 }
 
 function initializeProp(prop) {
-  prop.highlights = [];
+  prop.highlights = prop.highlights || [];
   return prop;
+}
+
+// Assume we can start at 0 and increment and never run into the IDs from the other sites.
+// TODO: Maybe namespace this
+function nextPropId() {
+  const numericIDs = [0, ...getPrefs().manuallyAdded.map(p => p.id)];
+  const nextID = Math.max.apply({}, numericIDs) + 1;
+  console.assert(isFinite(nextID));
+  return nextID;
 }
 
 async function main() {
@@ -134,8 +148,10 @@ async function main() {
   const areas = await fetchWithBackup(areaFiles, testAreas);
   document.data.areas = areas;
   console.info('areas', areas);
-  const propList = await fetchWithBackup(dataFiles, testFiles);
+  const fetchedProps = await fetchWithBackup(dataFiles, testFiles);
+  const propList = [...prefs.manuallyAdded, ...fetchedProps];
   const props = new Map(propList.map(prop => [prop.id, initializeProp(prop)]));
+
   document.data.props = props;
   console.info('props', props);
 
@@ -154,6 +170,22 @@ async function main() {
 
   // Add current location. Only works if protocol is https:
   enableGeolocation(map, areaMarkers);
+
+  // On map click, open a popup to add a property at that coordinate
+  map.leafletMap.on('contextmenu', function(ev) {
+    console.log('contextmenu!', ev);
+    // By default, make it harder to close
+    const options = {
+      maxWidth: popupMaxWidth,
+      closeOnClick: false
+    };
+    const coords = ev.latlng;
+    // We won't have two of these popups open at the same time, we can re-use
+    // the ID if it was canceled.
+    const popup = L.popup(options).setLatLng(coords);
+    popup.setContent(addPropertyPopup(map, popup, ev.latlng));
+    this.openPopup(popup);
+  });
 
   console.info('done!');
 }

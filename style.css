@@ -19,6 +19,10 @@ html, body {
   width: 100%;
 }
 
+.save-popup-warning {
+  color: red;
+}
+
 .popup-photos {
   display: flex;
   flex-direction: row;

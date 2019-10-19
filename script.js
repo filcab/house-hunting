@@ -164,9 +164,9 @@ async function main() {
   map.layersControl.addOverlay(areaLayer, "Walking distances");
   const markers = drawMarkers(map, props, prefs);
 
-  map.scheduleControl = L.control.schedule().addTo(map.leafletMap);
-
   fitToMarkers(map, markers.concat(Array.from(areaMarkers.values())));
+
+  map.scheduleControl = L.control.schedule().addTo(map.leafletMap);
 
   // Add current location. Only works if protocol is https:
   enableGeolocation(map, areaMarkers);

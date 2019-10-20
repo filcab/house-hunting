@@ -368,7 +368,7 @@ function addPropertyPopup(map, popup, coords) {
     const prop = {id: nextPropId()};
     // This will JSON.stringify correctly, only yielding lat and lng properties
     prop.loc = coords;
-    prop.price = {display: `&pound; ${priceInput.value}`};
+    prop.price = {display: `£ ${priceInput.value}`};
     prop.agent = {phone: phoneInput.value};
     prop.url = '#';
     prop.desc = nameInput.value;

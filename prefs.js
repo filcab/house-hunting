@@ -112,7 +112,11 @@ async function loadPreferences() {
 async function savePreferences(prefs) {
   console.debug('saving prefs:', prefs);
   const jsonPrefs = JSON.stringify(prefs);
-  const connection = await fetch(PREFS_URL, {method: 'POST', body: jsonPrefs});
+  const connection = await fetch(PREFS_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json;charset=UTF-8'},
+    body: jsonPrefs
+  });
   console.debug(connection);
   const response = await connection.json();
   if (response.result != 'ok') {

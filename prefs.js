@@ -20,7 +20,7 @@ function autoUpgradePreferences(prefs) {
       prefs.highlights[name] = prefs.highlights[name] || [];
 
   prefs.scheduled = (prefs.scheduled || {});
-  prefs.manuallyAdded = (prefs.manuallyAdded || {});
+  prefs.manuallyAdded = (prefs.manuallyAdded || []);
   return prefs;
 }
 

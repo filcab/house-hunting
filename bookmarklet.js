@@ -262,7 +262,7 @@ function RightMove() {
       .then(data => displayData(data, 'data-rm.json'));
 }
 
-function Zoopla() {
+async function Zoopla() {
   const query = document.getElementById('mp-list').getElementsByTagName('ul');
   if (query.length != 1) {
     alert('Sorry, parsing did not work. Check console.');
@@ -272,7 +272,9 @@ function Zoopla() {
 
   const propList = Array.from(query[0].children);
 
-  function htmlElementToCommonFormat(elem) {
+  async function htmlElementToCommonFormat(elem) {
+    // TODO: Check "<script type="application/ld+json">" element in details page
+    // for each property.
     const prop = {id: Number(elem.children[0].children[1].value)};
     // Just hard-code it
     prop.imgs = [elem.children[1].children[0].src];
@@ -281,9 +283,15 @@ function Zoopla() {
     const itemResult = elem.children[2];
     prop.price = {display: itemResult.children[0].textContent.trim()};
     let anchor = itemResult.children[1].children[0];
+    let pageContents = '';
     if (anchor) {
       prop.desc = anchor.textContent.replace(/for sale/, '').trim();
       prop.url = makeAbsoluteUrl(anchor.href);
+      pageContents = await fetch(anchor.href).then(x => x.text());
+      const coordsLines = pageContents.split(/\r?\n/).filter(line => line.trim().startsWith('"coordinates": '));
+      const coords = JSON.parse(`{${coordsLines[0]} "dummy": 0}`).coordinates;
+      prop.loc = {lat: coords.latitude, lng: coords.longitude};
+      console.log(prop.loc);
     } else {
       // Fake it
       prop.desc = 'Expired?!';
@@ -301,7 +309,8 @@ function Zoopla() {
     return prop;
   }
 
-  const json = JSON.stringify(propList.map(htmlElementToCommonFormat));
+  const props = await Promise.all(propList.map(htmlElementToCommonFormat));
+  const json = JSON.stringify(props);
   displayData(json, 'data-zoopla.json');
 }
 

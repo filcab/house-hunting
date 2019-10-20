@@ -4,7 +4,7 @@
 const map = createAndAttachMap('map');
 
 // Actual data (not committed)
-const dataFiles = ['data-rm.json', 'data-otm.json'];
+const dataFiles = ['data-rm.json', 'data-otm.json', 'data-zoopla.json'];
 const areaFiles = ['areas.json'];
 // Test data, as an example
 const testFiles = ['test-data.json'];

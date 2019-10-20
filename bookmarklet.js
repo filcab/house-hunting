@@ -262,9 +262,53 @@ function RightMove() {
       .then(data => displayData(data, 'data-rm.json'));
 }
 
+function Zoopla() {
+  const query = document.getElementById('mp-list').getElementsByTagName('ul');
+  if (query.length != 1) {
+    alert('Sorry, parsing did not work. Check console.');
+    console.log(query);
+    return;
+  }
+
+  const propList = Array.from(query[0].children);
+
+  function htmlElementToCommonFormat(elem) {
+    const prop = {id: Number(elem.children[0].children[1].value)};
+    // Just hard-code it
+    prop.imgs = [elem.children[1].children[0].src];
+    prop.tags = [elem.children[1].textContent.trim()];
+
+    const itemResult = elem.children[2];
+    prop.price = {display: itemResult.children[0].textContent.trim()};
+    let anchor = itemResult.children[1].children[0];
+    if (anchor) {
+      prop.desc = anchor.textContent.replace(/for sale/, '').trim();
+      prop.url = makeAbsoluteUrl(anchor.href);
+    } else {
+      // Fake it
+      prop.desc = 'Expired?!';
+      prop.url = '#';
+    }
+    prop.addr = itemResult.children[2].textContent;
+
+    const agentInfo = elem.children[2].children[0];
+    prop.agent = {
+      name: agentInfo.children[2],
+      phone: itemResult.children[3].textContent.trim(),
+      logo: itemResult.children[4]
+    };
+
+    return prop;
+  }
+
+  const json = JSON.stringify(propList.map(htmlElementToCommonFormat));
+  displayData(json, 'data-zoopla.json');
+}
+
 const functions = {
   'www.rightmove.co.uk': RightMove,
   'www.onthemarket.com': OnTheMarket,
+  'www.zoopla.co.uk': Zoopla,
 };
 
 const fun = functions[window.location.host];

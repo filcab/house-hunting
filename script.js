@@ -18,8 +18,7 @@ function maybeFetchJSON(path) {
   return fetch(path).then(function(response) {
     if (!response.ok) {
       // TODO: Maybe have a better way to report errors to user
-      console.warn(`Failed request to ${response.url}: ${response.status} ${
-          response.statusText}`);
+      console.warn(`Failed request to ${response.url}: ${response.status} ${response.statusText}`);
       return [];
     }
     return response.json()

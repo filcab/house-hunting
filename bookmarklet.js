@@ -272,38 +272,56 @@ async function Zoopla() {
 
   const propList = Array.from(query[0].children);
 
+  async function getDetails(detailsPageUrl) {
+    const contents = await fetch(detailsPageUrl).then(x => x.text()).catch(e => '');
+    if (!contents)
+      return {};
+
+    const parser = new DOMParser();
+    const htmlDocument = parser.parseFromString(contents, 'text/html');
+    // Hard code getting the second ld+json script, which contains most of the
+    // missing details
+    return JSON.parse(
+        htmlDocument.querySelectorAll('script[type="application/ld+json"]')[1]
+            .textContent);
+  }
+
   async function htmlElementToCommonFormat(elem) {
     // TODO: Check "<script type="application/ld+json">" element in details page
     // for each property.
     const prop = {id: Number(elem.children[0].children[1].value)};
     // Just hard-code it
-    prop.imgs = [elem.children[1].children[0].src];
     prop.tags = [elem.children[1].textContent.trim()];
 
     const itemResult = elem.children[2];
     prop.price = {display: itemResult.children[0].textContent.trim()};
     let anchor = itemResult.children[1].children[0];
-    let pageContents = '';
+    let details = {};
     if (anchor) {
+      details = await getDetails(anchor.href);
       prop.desc = anchor.textContent.replace(/for sale/, '').trim();
       prop.url = makeAbsoluteUrl(anchor.href);
-      pageContents = await fetch(anchor.href).then(x => x.text());
-      const coordsLines = pageContents.split(/\r?\n/).filter(line => line.trim().startsWith('"coordinates": '));
-      const coords = JSON.parse(`{${coordsLines[0]} "dummy": 0}`).coordinates;
-      prop.loc = {lat: coords.latitude, lng: coords.longitude};
-      console.log(prop.loc);
+
+      const infoArray = details['@graph'];
+      // Hard-coded because I can't be bothered to search for infoArray['@type'] == 'Residence'
+      const residence = infoArray[3];
+      prop.loc = {lat: residence.geo.latitude, lng: residence.geo.longitude};
+      prop.imgs = residence.photo.map(obj => obj.contentUrl);
     } else {
       // Fake it
       prop.desc = 'Expired?!';
       prop.url = '#';
+      // We do have an image. Use it
+      prop.imgs = [elem.children[1].children[0].src];
     }
     prop.addr = itemResult.children[2].textContent;
 
-    const agentInfo = elem.children[2].children[0];
+    const agentInfo = elem.querySelector('.listing-results-marketed');
+    console.log(agentInfo);
     prop.agent = {
       name: agentInfo.children[2],
-      phone: itemResult.children[3].textContent.trim(),
-      logo: itemResult.children[4]
+      phone: agentInfo.children[3].textContent.trim(),
+      logo: agentInfo.children[4]
     };
 
     return prop;

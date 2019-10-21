@@ -230,8 +230,11 @@ function propertyPopup(marker) {
 
   if (prop.agent) {
     const phone = span('popup-phone');
-    phone.textContent = prop.agent.phone;
-    priceAndPhone.appendChild(phone);
+    const phoneLink = element('a');
+    phoneLink.textContent = prop.agent.phone;
+    phoneLink.href = `tel:${prop.agent.phone.replace(/ +/g, '')}`;
+    phoneLink.appendChild(phone);
+    priceAndPhone.appendChild(phoneLink);
   }
 
   info.appendChild(priceAndPhone);

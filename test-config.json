@@ -1,0 +1,4 @@
+{
+    "areas": ["test-areas.json"],
+    "data": ["test-data.json"]
+}

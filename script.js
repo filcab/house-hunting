@@ -3,13 +3,6 @@
 // abstracted enough.
 const map = createAndAttachMap('map');
 
-// Actual data (not committed)
-const dataFiles = ['data-rm.json', 'data-otm.json', 'data-zoopla.json'];
-const areaFiles = ['areas.json'];
-// Test data, as an example
-const testFiles = ['test-data.json'];
-const testAreas = ['test-areas.json'];
-
 // Some utility functions
 // Promise: Fetch a JSON object, or return an empty array, if not possible to
 // fetch
@@ -30,18 +23,6 @@ async function fetchMergeJSONArrays(files) {
   const reqs = files.map(maybeFetchJSON);
   const array = await Promise.all(reqs)
   return array.flat();
-}
-
-async function fetchWithBackup(dataFiles, testFiles) {
-  let fetched = await fetchMergeJSONArrays(dataFiles);
-  if (fetched.length == 0) {
-    console.warn(`data not found at ${dataFiles}, fetching test data from ${testFiles}`);
-    fetched = await fetchMergeJSONArrays(testFiles);
-  }
-  // Merge all areas into a single object
-  // If two areas are defined with the same name, only the latter will be used.
-  // FIXME: Maybe be nicer
-  return fetched;
 }
 
 function drawInterestingAreas(map, areas, prefs) {
@@ -141,13 +122,21 @@ function nextPropId() {
 async function main() {
   adjustTitleIfDev();
 
+  const config = await fetch('config.json').then(function(response) {
+    if (response.ok === false) {
+      return fetch('test-config.json').then(x => x.json());
+    }
+    return response.json();
+  });
+  console.log(config);
+
   const prefs = await loadPreferences();
   document.data.prefs = prefs;
   console.info('prefs', prefs);
-  const areas = await fetchWithBackup(areaFiles, testAreas);
+  const areas = await fetchMergeJSONArrays(config.areas);
   document.data.areas = areas;
   console.info('areas', areas);
-  const fetchedProps = await fetchWithBackup(dataFiles, testFiles);
+  const fetchedProps = await fetchMergeJSONArrays(config.data);
   const propList = [...prefs.manuallyAdded, ...fetchedProps];
   const props = new Map(propList.map(prop => [prop.id, initializeProp(prop)]));
 

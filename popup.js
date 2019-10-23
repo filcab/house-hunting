@@ -159,6 +159,7 @@ function scheduledHandler(state, prop, input, event) {
   const toRemove = event.target.checked ? 'popup-scheduled-date-invisible' : 'popup-scheduled-date-visible';
   input.classList.add(toAdd);
   input.classList.remove(toRemove);
+  input.disabled = !event.target.checked;
 }
 
 // Adds leading zeroes until number as a string has width chars
@@ -289,6 +290,8 @@ function propertyPopup(state, marker) {
       'popup-scheduled-date-invisible' :
       'popup-scheduled-date-visible';
   dateInput.classList.add(scheduledStartClass);
+  const isScheduled = prop.highlights.indexOf('scheduled') != -1;
+  dateInput.disabled = !isScheduled;
   dateInput.addEventListener('change', onScheduledDateChange.bind(null, state, prop));
   interactiveSection.appendChild(dateInput);
 
@@ -297,7 +300,7 @@ function propertyPopup(state, marker) {
   const scheduledCheckbox = emojiCheckbox(
       'scheduled', '📅', ['checkbox-scheduled', 'emoji-checkbox'],
       scheduledHandler.bind(null, state, prop, dateInput))
-  scheduledCheckbox.input.checked = prop.highlights.indexOf('scheduled') != -1;
+  scheduledCheckbox.input.checked = isScheduled;
   buttons.appendChild(scheduledCheckbox);
   const okCheckbox = emojiCheckbox(
       'ok', '🆗', ['checkbox-ok', 'emoji-checkbox-faded'],

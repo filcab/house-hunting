@@ -2,13 +2,6 @@
 // Global data, for ease of access, mostly
 document.state = {};
 
-// global utility functions (FIXME: Remove them and thread the state object
-// through). These functions are only valid after the initial part of the main()
-// function
-const getPrefs = () => document.state.prefs;
-const getAreas = () => document.state.areas;
-const getProps = () => document.state.props;
-
 // Some utility functions
 // Promise: Fetch a JSON object, or return an empty array, if not possible to
 // fetch
@@ -109,8 +102,8 @@ function initializeProp(prop) {
 
 // Assume we can start at 0 and increment and never run into the IDs from the other sites.
 // TODO: Maybe namespace this
-function nextPropId() {
-  const numericIDs = [0, ...getPrefs().manuallyAdded.map(p => p.id)];
+function nextPropId(state) {
+  const numericIDs = [0, ...state.prefs.manuallyAdded.map(p => p.id)];
   const nextID = Math.max.apply({}, numericIDs) + 1;
   console.assert(isFinite(nextID));
   return nextID;

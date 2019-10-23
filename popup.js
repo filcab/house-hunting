@@ -86,7 +86,7 @@ function checkboxHandler(state, prop, event) {
       `Toggling highlight '${highlight_name}' (checked=${event.target.checked}) for prop ${prop.id} with event`,
       event);
   // FIXME: ugh
-  const prefs = getPrefs();
+  const prefs = state.prefs;
   toggleNamedHighlight(state, prop, highlight_name, event.target.checked);
   updateMarkerHighlightStyle(state, prop.marker);
   savePreferences(prefs)
@@ -121,12 +121,12 @@ function myDateParse(date, timezoneAdjust) {
   };
 }
 
-function onScheduledDateChange(prop, ev) {
+function onScheduledDateChange(state, prop, ev) {
   console.log(`onScheduledDateChange(prop.id: ${prop.id})`);
   console.log(ev);
 
   const datetime = ev.target.value;
-  const prefs = getPrefs();
+  const prefs = state.prefs;
   if (datetime) {
     const parsedDate = myDateParse(ev.target.value, ev.target.type == 'text');
     console.log(`date: ${parsedDate}`);
@@ -278,7 +278,7 @@ function propertyPopup(state, marker) {
       'popup-scheduled-date-invisible' :
       'popup-scheduled-date-visible';
   dateInput.classList.add(scheduledStartClass);
-  dateInput.addEventListener('change', onScheduledDateChange.bind(null, prop));
+  dateInput.addEventListener('change', onScheduledDateChange.bind(null, state, prop));
   interactiveSection.appendChild(dateInput);
 
 
@@ -370,7 +370,7 @@ function addPropertyPopup(state, map, popup, coords) {
       return;
     }
 
-    const prop = {id: nextPropId()};
+    const prop = {id: nextPropId(state)};
     // This will JSON.stringify correctly, only yielding lat and lng properties
     prop.loc = coords;
     prop.price = {display: `£ ${priceInput.value}`};

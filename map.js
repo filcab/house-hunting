@@ -173,7 +173,7 @@ function updateMarkerHighlightStyle(state, marker) {
     return;
   }
 
-  const highlights = getPrefs().highlights;
+  const highlights = state.prefs.highlights;
   for (const type of ['ng', 'ok', 'scheduled']) {
     const props = highlights[type];
     const shouldHighlight = props.indexOf(p.id) != -1;

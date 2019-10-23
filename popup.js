@@ -1,3 +1,5 @@
+'use strict';
+
 function element(type) {
   const e = document.createElement(type);
   return e;

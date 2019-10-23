@@ -1,3 +1,4 @@
+'use strict';
 function getAvailableTileLayers() {
   // Regular OSM server
   const osm = {

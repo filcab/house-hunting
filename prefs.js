@@ -1,3 +1,4 @@
+'use strict';
 const PREFS_URL = 'dynamic/preferences';
 
 function makeDefaultPrefs() {

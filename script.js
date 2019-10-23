@@ -1,3 +1,4 @@
+'use strict';
 // All map-related functions called in this file should be abstract regarding
 // the map being used. We've only tested one map library, but hopefully it's
 // abstracted enough.

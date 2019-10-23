@@ -1,3 +1,4 @@
+'use strict';
 // With some code from Leaflet.Control.Zoom
 
 const Schedule = L.Control.extend({

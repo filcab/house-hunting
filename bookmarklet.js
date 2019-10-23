@@ -2,6 +2,7 @@
 // TODO: Some properties might have been removed. Maybe add some warning
 // messages for that.
 (function() {
+'use strict';
 
 // Common utilities
 const makeAbsoluteUrl = relativeUrl => new URL(relativeUrl, window.location);

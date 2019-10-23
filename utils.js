@@ -1,3 +1,4 @@
+'use strict';
 // Function based on MDN's example:
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/By_example/Detect_WebGL
 function isWebGLAvailable() {

@@ -60,6 +60,9 @@ function emojiCheckbox(name, textContent, nestedSpanClasses, onChange) {
 function mapsLink(loc) {
   return `https://maps.apple.com/?daddr=${loc.lat},${loc.lng}`;
 }
+function mapsPostcodeLink(code) {
+  return `https://maps.apple.com/?daddr=${encodeURIComponent(code)}`;
+}
 
 async function setupPostCodeInfo(elem, p) {
   const postCodeUrl =
@@ -75,7 +78,9 @@ async function setupPostCodeInfo(elem, p) {
 
   if (query_result && query_result.status == 200 && query_result.result) {
     const first_result = query_result.result[0];
-    elem.textContent = first_result.postcode;
+    const code = first_result.postcode;
+    const link = anchor(mapsPostcodeLink(code), code);
+    elem.appendChild(link);
     elem.style.display = 'block';
   }
 }

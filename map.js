@@ -74,6 +74,7 @@ function createAndAttachMap(divId) {
   // Add misc controls to map
   map.layersControl.addTo(map.leafletMap);
   L.control.scale().addTo(map.leafletMap);
+
   return map;
 }
 

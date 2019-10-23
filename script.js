@@ -1,8 +1,13 @@
 'use strict';
-// All map-related functions called in this file should be abstract regarding
-// the map being used. We've only tested one map library, but hopefully it's
-// abstracted enough.
-const map = createAndAttachMap('map');
+// Global data, for ease of access, mostly
+document.state = {};
+
+// global utility functions (FIXME: Remove them and thread the state object
+// through). These functions are only valid after the initial part of the main()
+// function
+const getPrefs = () => document.state.prefs;
+const getAreas = () => document.state.areas;
+const getProps = () => document.state.props;
 
 // Some utility functions
 // Promise: Fetch a JSON object, or return an empty array, if not possible to
@@ -50,15 +55,6 @@ function drawMarkers(map, props, prefs) {
     return marker;
   });
 }
-
-// Global data, for ease of access, mostly
-document.data = {};
-
-// global utility functions
-// These functions are only valid after the initial part of the main() function
-const getPrefs = () => document.data.prefs;
-const getAreas = () => document.data.areas;
-const getProps = () => document.data.props;
 
 function adjustTitleIfDev() {
   // Don't ever set more than once
@@ -120,7 +116,7 @@ function nextPropId() {
   return nextID;
 }
 
-async function main() {
+async function main(state) {
   adjustTitleIfDev();
 
   const config = await fetch('config.json').then(function(response) {
@@ -132,19 +128,22 @@ async function main() {
   console.log(config);
 
   const prefs = await loadPreferences();
-  document.data.prefs = prefs;
+  state.prefs = prefs;
   console.info('prefs', prefs);
   const areas = await fetchMergeJSONArrays(config.areas);
-  document.data.areas = areas;
+  state.areas = areas;
   console.info('areas', areas);
   const fetchedProps = await fetchMergeJSONArrays(config.data);
   const propList = [...prefs.manuallyAdded, ...fetchedProps];
   const props = new Map(propList.map(prop => [prop.id, initializeProp(prop)]));
 
-  document.data.props = props;
+  state.props = props;
   console.info('props', props);
 
   applyPreferencesToProperties(prefs, props);
+
+  const map = createAndAttachMap('map');
+  state.map = map;
 
   // We should be able to turn off the areas, from the Layers Control
   const areaMarkers = drawInterestingAreas(map, areas, prefs);
@@ -178,4 +177,4 @@ async function main() {
 
   console.info('done!');
 }
-main()
+main(document.state)

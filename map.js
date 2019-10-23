@@ -153,7 +153,7 @@ function calculatePopupMaxWidth() {
 }
 const popupMaxWidth = calculatePopupMaxWidth();
 
-function updateMarkerHighlightStyle(marker) {
+function updateMarkerHighlightStyle(state, marker) {
   const markerClasses =
       ['marker-ok', 'marker-ng', 'marker-sold', 'marker-scheduled'];
   const p = marker.property;
@@ -184,7 +184,7 @@ function updateMarkerHighlightStyle(marker) {
   }
 }
 
-function addProperty(prefs, map, p, popupFunction) {
+function addProperty(state, map, p, popupFunction) {
   const marker = L.marker(p.loc);
   marker.property = p;
 
@@ -199,7 +199,7 @@ function addProperty(prefs, map, p, popupFunction) {
 
   // Has to be called only after adding to the map, otherwise we don't have an
   // element/style yet
-  updateMarkerHighlightStyle(marker)
+  updateMarkerHighlightStyle(state, marker)
 
   return marker;
 }

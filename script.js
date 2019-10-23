@@ -31,10 +31,10 @@ async function fetchMergeJSONArrays(files) {
   return array.flat();
 }
 
-function drawInterestingAreas(map, areas, prefs) {
+function drawInterestingAreas(state, map, areas) {
   return areas
       .map(function(area) {
-        const marker = drawArea(prefs, area);
+        const marker = drawArea(state.prefs, area);
         area.marker = marker;
         return marker;
       })
@@ -42,10 +42,10 @@ function drawInterestingAreas(map, areas, prefs) {
       .filter(Boolean);
 }
 
-function drawMarkers(map, props, prefs) {
+function drawMarkers(state, map, props) {
   // Add markers for all the properties we care about
   return Array.from(props.values(), function(prop) {
-    const marker = addProperty(prefs, map, prop, propertyPopup);
+    const marker = addProperty(state, map, prop, propertyPopup.bind({}, state));
     // Cheat for now. We should change things so markers have a propID, but not
     // a property pointer. That way we can treat manually-added properties the
     // same way as other properties.
@@ -146,11 +146,11 @@ async function main(state) {
   state.map = map;
 
   // We should be able to turn off the areas, from the Layers Control
-  const areaMarkers = drawInterestingAreas(map, areas, prefs);
+  const areaMarkers = drawInterestingAreas(state, map, areas);
   const areaLayer = L.layerGroup(areaMarkers);
   areaLayer.addTo(map.leafletMap);
   map.layersControl.addOverlay(areaLayer, "Walking distances");
-  const markers = drawMarkers(map, props, prefs);
+  const markers = drawMarkers(state, map, props);
 
   fitToMarkers(map, markers.concat(Array.from(areaMarkers.values())));
 
@@ -171,7 +171,7 @@ async function main(state) {
     // We won't have two of these popups open at the same time, we can re-use
     // the ID if it was canceled.
     const popup = L.popup(options).setLatLng(coords);
-    popup.setContent(addPropertyPopup(map, popup, ev.latlng));
+    popup.setContent(addPropertyPopup(state, map, popup, ev.latlng));
     this.openPopup(popup);
   });
 

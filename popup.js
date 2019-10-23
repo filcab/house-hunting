@@ -80,15 +80,15 @@ async function setupPostCodeInfo(elem, p) {
   }
 }
 
-function checkboxHandler(prop, event) {
+function checkboxHandler(state, prop, event) {
   const highlight_name = event.target.name;
   console.log(
       `Toggling highlight '${highlight_name}' (checked=${event.target.checked}) for prop ${prop.id} with event`,
       event);
   // FIXME: ugh
   const prefs = getPrefs();
-  toggleNamedHighlight(prefs, prop, highlight_name, event.target.checked);
-  updateMarkerHighlightStyle(prop.marker);
+  toggleNamedHighlight(state, prop, highlight_name, event.target.checked);
+  updateMarkerHighlightStyle(state, prop.marker);
   savePreferences(prefs)
 }
 
@@ -146,8 +146,8 @@ function onScheduledDateChange(prop, ev) {
   savePreferences(prefs);
 }
 
-function scheduledHandler(prop, input, event) {
-  checkboxHandler(prop, event);
+function scheduledHandler(state, prop, input, event) {
+  checkboxHandler(state, prop, event);
 
   // Additionally, deal with the datetime picker
   const toAdd = event.target.checked ? 'popup-scheduled-date-visible' : 'popup-scheduled-date-invisible';
@@ -193,7 +193,7 @@ function formatDate(inputDate, timezoneAdjust) {
 }
 
 // Function that builds a popup for a marker.
-function propertyPopup(marker) {
+function propertyPopup(state, marker) {
   const prop = marker.property;
   const contents = div('popup-contents');
 
@@ -285,17 +285,17 @@ function propertyPopup(marker) {
   const buttons = span('popup-buttons');
   const scheduledCheckbox = emojiCheckbox(
       'scheduled', '📅', ['checkbox-scheduled', 'emoji-checkbox'],
-      scheduledHandler.bind(null, prop, dateInput))
+      scheduledHandler.bind(null, state, prop, dateInput))
   scheduledCheckbox.input.checked = prop.highlights.indexOf('scheduled') != -1;
   buttons.appendChild(scheduledCheckbox);
   const okCheckbox = emojiCheckbox(
       'ok', '🆗', ['checkbox-ok', 'emoji-checkbox-faded'],
-      checkboxHandler.bind(null, prop))
+      checkboxHandler.bind(null, state, prop))
   okCheckbox.input.checked = prop.highlights.indexOf('ok') != -1;
   buttons.appendChild(okCheckbox);
   const ngCheckbox = emojiCheckbox(
       'ng', '🆖', ['checkbox-ng', 'emoji-checkbox-faded'],
-      checkboxHandler.bind(null, prop));
+      checkboxHandler.bind(null, state, prop));
   ngCheckbox.input.checked = prop.highlights.indexOf('ng') != -1;
   buttons.appendChild(ngCheckbox);
   interactiveSection.appendChild(buttons);
@@ -315,7 +315,7 @@ function propertyPopup(marker) {
   return contents;
 }
 
-function addPropertyPopup(map, popup, coords) {
+function addPropertyPopup(state, map, popup, coords) {
   const contents = div('popup-contents');
 
   const header = div('save-popup-warning');
@@ -381,7 +381,7 @@ function addPropertyPopup(map, popup, coords) {
     prop.summary = notesInput.value;
     prop.editable = true;
 
-    addPropertyManually(map, getPrefs(), prop);
+    addPropertyManually(state, map, prop);
     popup.remove();
   });
   contents.appendChild(saveButton);

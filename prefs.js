@@ -26,11 +26,12 @@ function autoUpgradePreferences(prefs) {
 }
 
 // Changing preferences should always be done via these functions
-function toggleNamedHighlight(prefs, prop, name, state) {
+function toggleNamedHighlight(state, prop, name, checked) {
+  const prefs = state.prefs;
   const namedHighlights =
       prefs.highlights[name] || (prefs.highlights[name] = []);
   prefs.highlights[name] = namedHighlights;
-  if (state) {
+  if (checked) {
     console.assert(namedHighlights.indexOf(prop.id) == -1);
     namedHighlights.push(prop.id);
     console.assert(prop.highlights.indexOf(name) == -1);
@@ -62,17 +63,17 @@ function scheduleVisit(prefs, prop, datetime) {
   prop.scheduled = datetime;
 }
 
-function addPropertyManually(map, prefs, prop) {
+function addPropertyManually(state, map, prop) {
   initializeProp(prop);
 
   // For now, make sure that prop.id isn't in prefs.
   // It should never happen, but just in case...
-  for (const p of prefs.manuallyAdded)
+  for (const p of state.prefs.manuallyAdded)
     // Make sure it works even if we have some values as strings, others as numbers
     console.assert(p.id != prop.id && Number(p.id) != Number(prop.id));
 
-  prefs.manuallyAdded.push(prop);
-  const marker = addProperty(prefs, map, prop, propertyPopup);
+  state.prefs.manuallyAdded.push(prop);
+  const marker = addProperty(state, map, prop, propertyPopup.bind({}, state));
   // Cheat for now. We should change things so markers have a propID, but not a
   // property pointer. That way we can treat manually-added properties the same
   // way as other properties.
@@ -80,7 +81,7 @@ function addPropertyManually(map, prefs, prop) {
   // information (transient information (e.g: markers)).
   Object.defineProperty(prop, 'marker', {enumerable: false, value: marker});
 
-  savePreferences(prefs);
+  savePreferences(state.prefs);
 }
 
 // I've asked the experts and they suggested keeping it simple.

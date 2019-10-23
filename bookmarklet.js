@@ -274,7 +274,8 @@ async function Zoopla() {
   const propList = Array.from(query[0].children);
 
   async function getDetails(detailsPageUrl) {
-    const contents = await fetch(detailsPageUrl).then(x => x.text()).catch(e => '');
+    const contents =
+        await fetch(detailsPageUrl).then(x => x.text()).catch(e => '');
     if (!contents)
       return {};
 

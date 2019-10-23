@@ -297,15 +297,18 @@ async function Zoopla() {
 
     const itemResult = elem.children[2];
     prop.price = {display: itemResult.children[0].textContent.trim()};
-    let anchor = itemResult.children[1].children[0];
+    const anchor = itemResult.children[1].children[0];
+    // Assume it's our img
+    let agentLogo = itemResult.children[4].src;
     let details = {};
     if (anchor) {
       details = await getDetails(anchor.href);
       prop.desc = anchor.textContent.replace(/for sale/, '').trim();
       prop.url = makeAbsoluteUrl(anchor.href);
 
+      // Hard-coded because I can't be bothered to search for
+      // details['@type'] == 'Residence'
       const infoArray = details['@graph'];
-      // Hard-coded because I can't be bothered to search for infoArray['@type'] == 'Residence'
       const residence = infoArray[3];
       prop.loc = {lat: residence.geo.latitude, lng: residence.geo.longitude};
       prop.imgs = residence.photo.map(obj => obj.contentUrl);
@@ -316,15 +319,16 @@ async function Zoopla() {
       // We do have an image. Use it
       prop.imgs = [elem.children[1].children[0].src];
     }
-    prop.addr = itemResult.children[2].textContent;
 
     const agentInfo = elem.querySelector('.listing-results-marketed');
     console.log(agentInfo);
     prop.agent = {
-      name: agentInfo.children[2],
+      name: agentInfo.children[2].textContent.trim(),
       phone: agentInfo.children[3].textContent.trim(),
-      logo: agentInfo.children[4]
+      logo: agentLogo,
     };
+
+    prop.addr = itemResult.children[2].textContent;
 
     return prop;
   }

@@ -222,9 +222,6 @@ function propertyPopup(state, marker) {
     }
   }
 
-  const info = div('popup-info');
-  contents.appendChild(info);
-
   const priceAndPhone = div('popup-price-and-phone');
   const price = span('popup-price');
   const priceStr =
@@ -243,8 +240,17 @@ function propertyPopup(state, marker) {
     phoneLink.appendChild(phone);
     priceAndPhone.appendChild(phoneLink);
   }
+  contents.appendChild(priceAndPhone);
 
-  info.appendChild(priceAndPhone);
+  const info = div('popup-info');
+  contents.appendChild(info);
+
+  if (prop.agent && prop.agent.logo) {
+    const agentLogo = element('img');
+    agentLogo.className = 'popup-agent-logo';
+    agentLogo.src = prop.agent.logo;
+    info.appendChild(agentLogo);
+  }
 
   const description = div('popup-description');
   description.appendChild(anchor(prop.url, prop.desc));

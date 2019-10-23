@@ -65,6 +65,10 @@ html, body {
   font-size: 130%;
 }
 
+.popup-agent-logo {
+  float: right;
+}
+
 .popup-location
 {
   font-size: 120%;

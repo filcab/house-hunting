@@ -23,7 +23,8 @@ const Schedule = L.Control.extend({
   _closeSchedule: function(ev) {},
 
   _createButton: function(title, container, func) {
-    const link = L.DomUtil.create('a', 'schedule-control-link', container);
+    const link = L.DomUtil.create(
+        'a', 'schedule-control-link-minimized', container);
     link.href = '#';
     link.title = title;
 
@@ -36,12 +37,14 @@ const Schedule = L.Control.extend({
   },
 
   _minimize: function(ev) {
+    L.DomUtil.addClass(this._button, 'schedule-control-link-minimized');
     if (this._scheduleDiv)
       this._toggleVisibility(this._button, this._scheduleDiv);
   },
 
   _openSchedule: function(ev) {
     console.log(ev);
+    L.DomUtil.removeClass(this._button, 'schedule-control-link-minimized');
 
     if (this._scheduleDiv) {
       this._updateSchedule();

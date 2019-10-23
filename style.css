@@ -146,12 +146,6 @@ html, body {
   filter: saturate(3);
 }
 
-.schedule-hidden {
-  height: 0;
-  width: 0;
-  transition: height 0.2s, width 0.2s;
-}
-
 .schedule-control {
   display: flex;
   justify-content: center;
@@ -159,35 +153,30 @@ html, body {
   box-shadow: 0 1px 5px rgba(0,0,0,0.4);
   background: #fff;
   border-radius: 5px;
+  transition: height 0.2s, width 0.2s;
 }
 
 .schedule-control-visible {
   display: auto;
-  height: auto;
-  width: auto;
-  transition: height 0.2s, width 0.2s;
 }
 .schedule-control-invisible {
   display: none;
-  height: 0;
-  width: 0;
-  transition: height 0.2s, width 0.2s;
 }
 
-.schedule-control-link:before {
+.schedule-control-link-minimized:before {
   content: "📅";
   /* Make it look slightly less dark */
   /* I might need to eventually bite the bullet and use one of those weird fonts people like, like font-awesome or similar */
   filter: brightness(1.1) saturate(1.3);
 }
-/* Use the same size as Control.Layers */
-.schedule-control-link {
+.schedule-control-link-minimized {
   display: block;
   height: 36px;
   width: 36px;
   text-align: center;
 }
-.leaflet-touch .schedule-control-link {
+/* Use the same size as Control.Layers */
+.leaflet-touch .schedule-control-link-minimized {
   display: block;
   height: 44px;
   width: 44px;

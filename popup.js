@@ -266,10 +266,6 @@ function propertyPopup(state, marker) {
   setupPostCodeInfo(postcode, prop);
   info.appendChild(postcode);
 
-  const summary = div('popup-summary');
-  summary.textContent = prop.summary;
-  info.appendChild(summary);
-
   const interactiveSection = div('popup-interactive');
   const dateInput = element('input');
   dateInput.type = 'datetime-local';

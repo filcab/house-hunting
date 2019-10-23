@@ -108,7 +108,7 @@ async function OnTheMarket() {
       imgs: [p['cover-image']],
       price: {display: p.price, qual: p['price-qualifier']},
       url: makeAbsoluteUrl(p['details-url']),
-      desc: p['property-title'],
+      desc: p['property-title'].replace(/for sale/, '').trim(),
       loc: {lat: p.location.lat, lng: p.location.lon},
       addr: p.display_address,
       summary: div.querySelector('p.description').textContent.trim(),
@@ -162,7 +162,7 @@ function RightMove() {
       // From map data (after fetching additional info)
       url: makeAbsoluteUrl(pData.propertyUrl),
       addr: pData.displayAddress,
-      desc: pData.propertyTypeFullDescription,
+      desc: pData.propertyTypeFullDescription.replace(/for sale/, '').trim(),
       summary: pData.summary,
       addedOrReduced: pData.addedOrReduced,
       area: pData.displaySize,

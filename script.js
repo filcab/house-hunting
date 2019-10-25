@@ -109,6 +109,43 @@ function nextPropId(state) {
   return nextID;
 }
 
+function element(type) {
+  const e = document.createElement(type);
+  return e;
+}
+
+function div(className) {
+  const d = element('div');
+  d.className = className;
+  return d;
+}
+
+function buildSchedule(prefs) {
+  const dateOptions = {year: 'numeric', month: '2-digit', day: '2-digit'};
+  const timeOptions = {hour: '2-digit', minute: '2-digit'};
+  const items = Array.from(Object.entries(prefs.scheduled));
+  // Our dates are written as ISO strings, starting with year, etc.
+  items.sort((a, b) => a[1].localeCompare(b[1]));
+
+  const sched = div('schedule-div');
+  let currentDate;
+  for (const item of items) {
+    const date = new Date(item[1]);
+    if (date.toLocaleDateString() !== currentDate) {
+      currentDate = date.toLocaleDateString();
+      const dateDiv = div('schedule-date');
+      dateDiv.textContent = date.toLocaleDateString(undefined, dateOptions);
+      sched.appendChild(dateDiv);
+    }
+
+    const timeDiv = div('schedule-time');
+    timeDiv.textContent = date.toLocaleTimeString(undefined, timeOptions);
+    sched.appendChild(timeDiv);
+  }
+
+  return sched;
+}
+
 async function main(state) {
   adjustTitleIfDev();
 
@@ -147,7 +184,9 @@ async function main(state) {
 
   fitToMarkers(map, markers.concat(Array.from(areaMarkers.values())));
 
-  map.scheduleControl = L.control.schedule().addTo(map.leafletMap);
+  map.scheduleControl =
+      L.control.schedule({builder: buildSchedule.bind({}, prefs)})
+          .addTo(map.leafletMap);
 
   // Add current location. Only works if protocol is https:
   enableGeolocation(map, areaMarkers);

@@ -149,7 +149,6 @@ html, body {
 .schedule-control {
   display: flex;
   justify-content: center;
-  font-size: 200%;
   box-shadow: 0 1px 5px rgba(0,0,0,0.4);
   background: #fff;
   border-radius: 5px;
@@ -165,6 +164,7 @@ html, body {
 
 .schedule-control-link-minimized:before {
   content: "📅";
+  font-size: 200%;
   /* Make it look slightly less dark */
   /* I might need to eventually bite the bullet and use one of those weird fonts people like, like font-awesome or similar */
   filter: brightness(1.1) saturate(1.3);
@@ -181,4 +181,16 @@ html, body {
   height: 44px;
   width: 44px;
   text-align: center;
+}
+
+.schedule-div {
+  overflow: auto;
+  font-size: 200%;
+  touch-action: manipulation;
+}
+
+.schedule-date {
+  position: sticky;
+  top: 0;
+  background-color: green;
 }

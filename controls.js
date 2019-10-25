@@ -37,26 +37,30 @@ const Schedule = L.Control.extend({
   },
 
   _minimize: function(ev) {
-    L.DomUtil.addClass(this._button, 'schedule-control-link-minimized');
-    if (this._scheduleDiv)
+    console.assert(!this._scheduleDiv);
+    if (this._scheduleDiv) {
       this._toggleVisibility(this._button, this._scheduleDiv);
+      // Now delete it so we can easily update it. In the future we won't be
+      // deleting this, just updating in-place.
+      delete this._scheduleDiv;
+    }
+    L.DomUtil.addClass(this._button, 'schedule-control-link-minimized');
   },
 
   _openSchedule: function(ev) {
     console.log(ev);
     L.DomUtil.removeClass(this._button, 'schedule-control-link-minimized');
 
+    console.assert(!this._scheduleDiv);
     if (this._scheduleDiv) {
-      this._updateSchedule();
       this._toggleVisibility(this._scheduleDiv, this._button);
       return;
     }
 
-    this._updateSchedule();
     const sched = L.DomUtil.create('div', 'schedule-div', this._container)
     sched.addEventListener('click', ev => this._minimize(ev), this);
     const placeholder = L.DomUtil.create('div', 'schedule-placeholder', sched);
-    placeholder.textContent = 'Hello!';
+    placeholder.appendChild(this.options.builder());
 
     this._scheduleDiv = sched;
 
@@ -73,8 +77,6 @@ const Schedule = L.Control.extend({
     L.DomUtil.addClass(makeVisible, 'schedule-control-visible');
     L.DomUtil.addClass(makeInvisible, 'schedule-control-invisible');
   },
-
-  _updateSchedule: function() {},
 });
 
 L.control.schedule = function (options) {

@@ -195,6 +195,18 @@ function propertyPopup(state, marker) {
   const prop = marker.property;
   const contents = div('popup-contents');
 
+  const args = arguments;
+  if (prop.editable) {
+    const button = element('button');
+    button.textContent = 'edit!';
+    button.addEventListener('click', function(ev) {
+      const newElem =
+          addPropertyPopup(state, marker.getPopup(), prop.loc, prop);
+      contents.parentNode.replaceChild(newElem, contents);
+    });
+    contents.appendChild(button);
+  }
+
   const photos = div('popup-photos');
   contents.appendChild(photos);
   const mainPhoto = div('popup-photos-main');
@@ -372,6 +384,18 @@ function addPropertyPopup(state, popup, coords, maybeProp) {
 
   const saveButton = element('button');
   saveButton.textContent = 'Save';
+
+  console.log('maybeProp:', maybeProp);
+  if (maybeProp !== undefined) {
+    // We're editing a property that already exists
+    nameInput.value = maybeProp.desc;
+    streetInput.value = maybeProp.addr;
+    priceInput.value = maybeProp.price.display.slice(2);
+    phoneInput.value = maybeProp.agent.phone;
+    agentInput.value = maybeProp.agent.name;
+    notesInput.value = getPropertyNotes(state, maybeProp);
+  }
+
   saveButton.addEventListener('click', function(ev) {
     // First validate that we have proper info
     const mandatoryInputs = [nameInput, streetInput, priceInput, phoneInput, agentInput];
@@ -389,18 +413,32 @@ function addPropertyPopup(state, popup, coords, maybeProp) {
       return;
     }
 
-    const prop = {id: nextPropId(state)};
-    // This will JSON.stringify correctly, only yielding lat and lng properties
-    prop.loc = coords;
-    prop.price = {display: `£ ${priceInput.value}`};
-    prop.agent = {phone: phoneInput.value, name: agentInput.value};
-    prop.url = '#';
-    prop.desc = nameInput.value;
-    prop.addr = streetInput.value;
-    prop.editable = true;
+    // Will be reset if we're adding a new one
+    let prop = maybeProp;
+    if (prop !== undefined) {
+      prop.price = {display: `£ ${priceInput.value}`};
+      prop.agent = {phone: phoneInput.value, name: agentInput.value};
+      prop.desc = nameInput.value;
+      prop.addr = streetInput.value;
+      // No need to save, we're reusing the object in preferences, and
+      // setPropertyNotes will save the preferences.
+    } else {
+      prop = {id: nextPropId(state)};
+      // This will JSON.stringify correctly, only yielding lat and lng properties
+      prop.loc = coords;
+      prop.price = {display: `£ ${priceInput.value}`};
+      prop.agent = {phone: phoneInput.value, name: agentInput.value};
+      prop.url = '#';
+      prop.desc = nameInput.value;
+      prop.addr = streetInput.value;
+      prop.editable = true;
+      addPropertyManually(state, prop);
+    }
 
-    addPropertyManually(state, map, prop);
-    setPropertyNotes(state, prop, notesInput.value);
+    // Save preferences if we're editing and didn't change the notes
+    if (!setPropertyNotes(state, prop, notesInput.value))
+      savePreferences(state.prefs);
+
     popup.remove();
   });
   contents.appendChild(saveButton);

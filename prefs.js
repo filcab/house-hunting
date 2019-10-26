@@ -57,7 +57,7 @@ function scheduleVisit(prefs, prop, datetime) {
   prop.scheduled = datetime;
 }
 
-function addPropertyManually(state, map, prop) {
+function addPropertyManually(state, prop) {
   initializeProp(prop);
 
   // For now, make sure that prop.id isn't in prefs.
@@ -67,7 +67,7 @@ function addPropertyManually(state, map, prop) {
     console.assert(p.id != prop.id && Number(p.id) != Number(prop.id));
 
   state.prefs.manuallyAdded.push(prop);
-  const marker = addProperty(state, map, prop, propertyPopup.bind({}, state));
+  const marker = addProperty(state, prop, propertyPopup.bind({}, state));
   // Cheat for now. We should change things so markers have a propID, but not a
   // property pointer. That way we can treat manually-added properties the same
   // way as other properties.

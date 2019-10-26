@@ -184,7 +184,7 @@ function updateMarkerHighlightStyle(state, marker) {
   }
 }
 
-function addProperty(state, map, p, popupFunction) {
+function addProperty(state, p, popupFunction) {
   const marker = L.marker(p.loc);
   marker.property = p;
 
@@ -195,7 +195,7 @@ function addProperty(state, map, p, popupFunction) {
     delete e.target.property.inputs;
   });
 
-  marker.addTo(map.leafletMap);
+  marker.addTo(state.map.leafletMap);
 
   // Has to be called only after adding to the map, otherwise we don't have an
   // element/style yet

@@ -41,7 +41,7 @@ function drawInterestingAreas(state, map, areas) {
 function drawMarkers(state, map, props) {
   // Add markers for all the properties we care about
   return Array.from(props.values(), function(prop) {
-    const marker = addProperty(state, map, prop, propertyPopup.bind({}, state));
+    const marker = addProperty(state, prop, propertyPopup.bind({}, state));
     // Cheat for now. We should change things so markers have a propID, but not
     // a property pointer. That way we can treat manually-added properties the
     // same way as other properties.
@@ -205,7 +205,7 @@ async function main(state) {
     // We won't have two of these popups open at the same time, we can re-use
     // the ID if it was canceled.
     const popup = L.popup(options).setLatLng(coords);
-    popup.setContent(addPropertyPopup(state, map, popup, ev.latlng));
+    popup.setContent(addPropertyPopup(state, popup, ev.latlng));
     this.openPopup(popup);
   });
 

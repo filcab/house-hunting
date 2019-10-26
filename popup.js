@@ -334,7 +334,7 @@ function propertyPopup(state, marker) {
   return contents;
 }
 
-function addPropertyPopup(state, map, popup, coords) {
+function addPropertyPopup(state, popup, coords, maybeProp) {
   const contents = div('popup-contents');
 
   const header = div('save-popup-warning');

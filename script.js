@@ -2,6 +2,9 @@
 // Global data, for ease of access, mostly
 document.state = {};
 
+const isDevSite = window.location.hostname == 'localhost' ||
+    window.location.pathname.includes('/dev/');
+
 // Some utility functions
 // Promise: Fetch a JSON object, or return an empty array, if not possible to
 // fetch
@@ -54,8 +57,7 @@ function adjustTitleIfDev() {
   if (document.title.endsWith(' (dev)'))
     return;
 
-  if (window.location.hostname == 'localhost' ||
-      window.location.pathname.includes('/dev/'))
+  if (isDevSite)
     document.title += ' (dev)'
 }
 
@@ -91,7 +93,7 @@ function applyPreferencesToProperties(prefs, props) {
   }
 
   // FIXME: For now, there's not much a user can do... fix it
-  if (subsequentlyRemoved.length)
+  if (isDevSite && subsequentlyRemoved.length)
     alert(`These properties got removed, but are still scheduled: ${subsequentlyRemoved}`);
 }
 

@@ -83,14 +83,17 @@ function getPropertyNotes(state, prop) {
   return notes;
 }
 
+// Returns true if preferences were saved
 function setPropertyNotes(state, prop, notes) {
   const id = Number(prop.id);
   const trimmed = notes.trim();
   const propNotes = state.prefs.notes;
   if (propNotes[id] == trimmed)
-    return;
+    // No change
+    return false;
   propNotes[id] = trimmed;
   savePreferences(state.prefs);
+  return true;
 }
 
 // I've asked the experts and they suggested keeping it simple.

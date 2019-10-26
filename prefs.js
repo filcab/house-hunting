@@ -1,14 +1,6 @@
 'use strict';
 const PREFS_URL = 'dynamic/preferences';
 
-function makeDefaultPrefs() {
-  return {
-    highlights: {scheduled: [], ok: [], ng: []},
-    scheduled: {},
-    manuallyAdded: [],
-  };
-}
-
 function autoUpgradePreferences(prefs) {
   if (prefs.highlight) {
     const oldHighlights = prefs.highlight;
@@ -16,12 +8,14 @@ function autoUpgradePreferences(prefs) {
     prefs.highlights = { 'scheduled': oldHighlights };
   }
 
+  prefs.highlights = (prefs.highlights || {});
   // Make sure our highlight arrays exists
   for (const name of ['ng', 'ok', 'scheduled'])
       prefs.highlights[name] = prefs.highlights[name] || [];
 
-  prefs.scheduled = (prefs.scheduled || {});
   prefs.manuallyAdded = (prefs.manuallyAdded || []);
+  prefs.notes = (prefs.scheduled || {});
+  prefs.scheduled = (prefs.scheduled || {});
   return prefs;
 }
 
@@ -92,7 +86,7 @@ async function loadPreferences() {
       });
 
   if (response.result != 'ok') {
-    const newPrefs = makeDefaultPrefs();
+    const newPrefs = autoUpgradePreferences({});
     console.warn('loading preferences: not ok response:', response);
     console.warn('setting default preferences:', newPrefs);
     return newPrefs;
@@ -107,7 +101,7 @@ async function loadPreferences() {
     console.error(`Exception: ${e}`);
     console.error('Couldn\'t parse pref response:')
     console.error(response);
-    return makeDefaultPrefs();
+    return autoUpgradePreferences({});
   }
 }
 

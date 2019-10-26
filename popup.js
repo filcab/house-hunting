@@ -264,6 +264,16 @@ function propertyPopup(state, marker) {
   setupPostCodeInfo(postcode, prop);
   info.appendChild(postcode);
 
+  const notesInput = element('textarea');
+  notesInput.classList.add('popup-notes');
+  notesInput.rows = 2;
+  notesInput.placeholder = 'Notes';
+  notesInput.value = getPropertyNotes(state, prop);
+  notesInput.addEventListener('change', function (ev) {
+    setPropertyNotes(state, prop, ev.target.value);
+  });
+  info.appendChild(notesInput);
+
   const interactiveSection = div('popup-interactive');
   const dateInput = element('input');
   dateInput.type = 'datetime-local';
@@ -318,6 +328,7 @@ function propertyPopup(state, marker) {
     ng: ngCheckbox.input,
     schedule: scheduledCheckbox.input,
     datetime: dateInput,
+    notes: notesInput,
   };
 
   return contents;
@@ -386,10 +397,10 @@ function addPropertyPopup(state, map, popup, coords) {
     prop.url = '#';
     prop.desc = nameInput.value;
     prop.addr = streetInput.value;
-    prop.summary = notesInput.value;
     prop.editable = true;
 
     addPropertyManually(state, map, prop);
+    setPropertyNotes(state, prop, notesInput.value);
     popup.remove();
   });
   contents.appendChild(saveButton);

@@ -98,6 +98,12 @@ html, body {
   transition: opacity 0.5s;
 }
 
+.popup-notes {
+  font-size: 120%;
+  height: 100%;
+  width: 100%;
+}
+
 .popup-info,
 .popup-summary {
   width: 100%;

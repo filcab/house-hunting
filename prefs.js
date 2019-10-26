@@ -14,7 +14,7 @@ function autoUpgradePreferences(prefs) {
       prefs.highlights[name] = prefs.highlights[name] || [];
 
   prefs.manuallyAdded = (prefs.manuallyAdded || []);
-  prefs.notes = (prefs.scheduled || {});
+  prefs.notes = (prefs.notes || {});
   prefs.scheduled = (prefs.scheduled || {});
   return prefs;
 }
@@ -75,6 +75,21 @@ function addPropertyManually(state, map, prop) {
   // information (transient information (e.g: markers)).
   Object.defineProperty(prop, 'marker', {enumerable: false, value: marker});
 
+  savePreferences(state.prefs);
+}
+
+function getPropertyNotes(state, prop) {
+  const notes = state.prefs.notes[Number(prop.id)] || '';
+  return notes;
+}
+
+function setPropertyNotes(state, prop, notes) {
+  const id = Number(prop.id);
+  const trimmed = notes.trim();
+  const propNotes = state.prefs.notes;
+  if (propNotes[id] == trimmed)
+    return;
+  propNotes[id] = trimmed;
   savePreferences(state.prefs);
 }
 

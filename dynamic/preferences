@@ -95,7 +95,8 @@ if method == 'GET':
     res = read_prefs(user)
 elif method == 'POST':
     if 'CONTENT_LENGTH' in env:
-        data = sys.stdin.read(int(env['CONTENT_LENGTH']))
+        data = sys.stdin.buffer.read(int(env['CONTENT_LENGTH'])) \
+            .decode('utf-8')
     else:
         data = sys.stdin.read()
     res = write_prefs(user, data)

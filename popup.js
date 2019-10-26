@@ -238,11 +238,17 @@ function propertyPopup(state, marker) {
   const info = div('popup-info');
   contents.appendChild(info);
 
-  if (prop.agent && prop.agent.logo) {
-    const agentLogo = element('img');
-    agentLogo.className = 'popup-agent-logo';
-    agentLogo.src = prop.agent.logo;
-    info.appendChild(agentLogo);
+  if (prop.agent) {
+    if (prop.agent.logo) {
+      const agentLogo = element('img');
+      agentLogo.className = 'popup-agent-logo';
+      agentLogo.src = prop.agent.logo;
+      info.appendChild(agentLogo);
+    } else {
+      const agentName = span('popup-agent-name');
+      agentName.textContent = prop.agent.name;
+      info.appendChild(agentName);
+    }
   }
 
   const description = div('popup-description');
@@ -376,7 +382,7 @@ function addPropertyPopup(state, map, popup, coords) {
     // This will JSON.stringify correctly, only yielding lat and lng properties
     prop.loc = coords;
     prop.price = {display: `£ ${priceInput.value}`};
-    prop.agent = {phone: phoneInput.value};
+    prop.agent = {phone: phoneInput.value, name: agentInput.value};
     prop.url = '#';
     prop.desc = nameInput.value;
     prop.addr = streetInput.value;

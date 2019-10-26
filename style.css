@@ -68,6 +68,12 @@ html, body {
 .popup-agent-logo {
   float: right;
 }
+.popup-agent-name {
+  float: right;
+  font-size: 150%;
+  height: 100%;
+  text-align: center;
+}
 
 .popup-location
 {

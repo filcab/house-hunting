@@ -101,29 +101,22 @@ function checkboxHandler(state, prop, event) {
 function dateForDatetimeInput(date) {
   return date.toISOString().slice(0, -1)
 }
-function myDateParse(date, timezoneAdjust) {
-  let maybeDate = new Date(date);
-  if (!isNaN(maybeDate)) {
-    if (timezoneAdjust)
-      // Update according to our timezone offset and get a UTC time
-      maybeDate.setMinutes(
-          maybeDate.getMinutes() - maybeDate.getTimezoneOffset());
-    return {result: 'ok', date: maybeDate};
-  }
+function myDateParse(date) {
+  const dateRE = /^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2}),? (\d{1,2}):(\d{2})$/;
+  const m = date.match(dateRE);
+  if (m === null)
+    return {
+      result: 'error',
+      error: `Bad date format: ${date}, use YYYY/MM/DD HH:MM`
+    };
 
-  maybeDate = new Date(date.replace(/-/g, '/'));
-  if (!isNaN(maybeDate)) {
-    if (timezoneAdjust)
-      // Update according to our timezone offset and get a UTC time
-      maybeDate.setMinutes(
-          maybeDate.getMinutes() - maybeDate.getTimezoneOffset());
-    return {result: 'ok', date: maybeDate};
-  }
+  const year = Number(m[1]);
+  const month = Number(m[2]) - 1;
+  const day = Number(m[3]);
+  const hour = Number(m[4]);
+  const minute = Number(m[5]);
 
-  return {
-    result: 'error',
-    error: `Bad date format: ${date}, use YYYY/MM/DD HH:MM`
-  };
+  return {result: 'ok', date: new Date(year, month, day, hour, minute)};
 }
 
 function onScheduledDateChange(state, prop, ev) {
@@ -133,7 +126,7 @@ function onScheduledDateChange(state, prop, ev) {
   const datetime = ev.target.value;
   const prefs = state.prefs;
   if (datetime) {
-    const parsedDate = myDateParse(ev.target.value, ev.target.type == 'text');
+    const parsedDate = myDateParse(ev.target.value);
     console.log(`date: ${parsedDate}`);
     if (parsedDate.result != 'ok') {
       alert(`${parsedDate.result}: ${parsedDate.error}`);
@@ -162,11 +155,6 @@ function scheduledHandler(state, prop, input, event) {
   input.disabled = !event.target.checked;
 }
 
-// Adds leading zeroes until number as a string has width chars
-function leadingZeroes(number, width) {
-  return String(number).padStart(width, '0');
-}
-
 function roundedDate(inputDate) {
   // Don't update the provided object, copy it and update the new one
   const d = new Date(inputDate);
@@ -177,25 +165,29 @@ function roundedDate(inputDate) {
   return d;
 }
 
-function formatRoundedDate(inputDate, timezoneAdjust) {
-  return formatDate(roundedDate(inputDate), timezoneAdjust);
+function formatRoundedDate(inputDate) {
+  return formatDate(roundedDate(inputDate));
 }
 
-function formatDate(inputDate, timezoneAdjust) {
-  const d = new Date(inputDate);
+const dateTimeFormatter = Intl.DateTimeFormat(undefined, {
+  hour: '2-digit',
+  minute: '2-digit',
+  month: '2-digit',
+  day: '2-digit',
+  year: 'numeric'
+});
 
-  if (timezoneAdjust)
-    // Update according to our timezone offset and get a local time
-    d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
-
-  // I don't care about robustly working with dates. This is not fool-proof and
-  // shouldn't be used in production anywhere. This is only used for browsers
-  // which don't support <input type="datetime-local"> (e.g: Safari on macOS)
-  const twoDigitMonth = leadingZeroes(d.getMonth() + 1, 2);
-  const twoDigitDay = leadingZeroes(d.getDate(), 2);
-  const twoDigitHours = leadingZeroes(d.getHours(), 2);
-  const twoDigitMinutes = leadingZeroes(d.getMinutes(), 2);
-  return `${d.getFullYear()}/${twoDigitMonth}/${twoDigitDay} ${twoDigitHours}:${twoDigitMinutes}`;
+function formatDate(date) {
+  const usefulParts =
+      dateTimeFormatter.formatToParts(date).map(({type, value}) => {
+        if (type == 'literal')
+          return {};
+        const obj = {};
+        obj[type] = value;
+        return obj;
+      });
+  const parts = Object.assign.apply({}, usefulParts);
+  return `${parts.year}/${parts.month}/${parts.day} ${parts.hour}:${parts.minute}`;
 }
 
 // Function that builds a popup for a marker.
@@ -276,7 +268,7 @@ function propertyPopup(state, marker) {
   if (dateInput.type == 'text') {
     // Add placeholder text in Safari for macOS. In that browser, the input type
     // is not changed, as it doesn't support datetime-local (nor datetime)
-    dateInput.placeholder = formatRoundedDate(new Date(), true);
+    dateInput.placeholder = formatRoundedDate(new Date());
 
     if (prop.scheduled)
       dateInput.value = formatDate(prop.scheduled, true);

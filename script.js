@@ -38,6 +38,22 @@ function drawInterestingAreas(state, map, areas) {
       .filter(Boolean);
 }
 
+function drawPOIs(state, layer, pois) {
+  const phases = new Set();
+  const optionsFor = kind =>
+      ({icon: L.divIcon({className: `marker-poi-${kind}`})});
+
+  const markers = pois.map(poi => {
+    const marker = L.marker(poi.loc, optionsFor(poi.kind));
+    marker.bindPopup(poiPopup.bind({}, poi));
+    phases.add(poi.phase);
+    return marker.addTo(layer);
+  });
+
+  console.log('phases of schools:', phases);
+  return markers;
+}
+
 function drawMarkers(state, map, props) {
   // Add markers for all the properties we care about
   return Array.from(props.values(), function(prop) {
@@ -185,6 +201,12 @@ async function main(state) {
   const markers = drawMarkers(state, map, props);
 
   fitToMarkers(map, markers.concat(Array.from(areaMarkers.values())));
+
+  // For now, all POIs are the same. Afterwards, we'll split them into different types
+  const poisLayer = L.layerGroup([]);
+  const poisArray = await fetchMergeJSONArrays(config.pois);
+  const pois = drawPOIs(state, poisLayer, poisArray);
+  map.layersControl.addOverlay(poisLayer, "POIs");
 
   map.scheduleControl =
       L.control.schedule({builder: buildSchedule.bind({}, prefs)})

@@ -109,6 +109,14 @@ html, body {
   width: 100%;
 }
 
+
+.popup-poi-name,
+.popup-poi-type,
+.popup-poi-students,
+.popup-poi-ages {
+  display: block;
+}
+
 .hide-checkbox {
   display: none;
 }
@@ -116,6 +124,11 @@ html, body {
 .emoji-checkbox,
 .emoji-checkbox-faded {
   font-size: 400%;
+}
+
+.marker-poi-school:before {
+  content: "🏫";
+  font-size: 150%;
 }
 
 .marker-sold {

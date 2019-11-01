@@ -30,6 +30,36 @@ function anchor(url, text) {
   return a;
 }
 
+function poiPopup(poi) {
+  // TODO: Maybe switch on .kind
+  const contents = div('popup-contents');
+
+  const name = span('popup-poi-name');
+  name.appendChild(anchor(poi.url, poi.name));
+  contents.appendChild(name);
+
+  const type = span('popup-poi-type');
+  type.textContent = `${poi.type} — ${poi.phase} (${poi.status})`;
+  contents.appendChild(type);
+
+  const students = span('popup-poi-students');
+  // FIXME: If we only have capacity, don't display the rest...
+  students.textContent =
+      `Capacity: ${poi.capacity}, 👧${poi.girls} 👦${poi.boys}`;
+  contents.appendChild(students);
+
+  const ages = span('popup-poi-ages');
+  // FIXME: If we only have capacity, don't display the rest...
+  ages.textContent = `Ages: ${poi.age_low}-${poi.age_high}`;
+  contents.appendChild(ages);
+
+  const ofsted = span('popup-poi-ofsted');
+  ofsted.textContent = `Ofsted: ${poi.ofsted_rating} (${poi.ofsted_last})`;
+  contents.appendChild(ofsted);
+
+  return contents;
+}
+
 // In order to support multiple effects, we can provide several span classes.
 // The function will create a span with the first class and the passed
 // textContent. Then place than in another span, with the next class, etc.

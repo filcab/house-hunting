@@ -111,10 +111,26 @@ html, body {
 
 
 .popup-poi-name,
+.popup-poi-street,
 .popup-poi-type,
 .popup-poi-students,
-.popup-poi-ages {
+.popup-poi-ages,
+.popup-poi-ofsted,
+.popup-poi-nursery,
+.popup-poi-religious,
+.popup-poi-links {
   display: block;
+}
+
+.popup-poi-name {
+  font-size: 130%;
+}
+
+.popup-poi-links {
+  display: flex;
+}
+.popup-poi-link {
+  margin: auto;
 }
 
 .hide-checkbox {
@@ -126,8 +142,7 @@ html, body {
   font-size: 400%;
 }
 
-.marker-poi-school:before {
-  content: "🏫";
+.marker-poi {
   font-size: 150%;
 }
 

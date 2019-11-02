@@ -38,10 +38,14 @@ function drawInterestingAreas(state, map, areas) {
       .filter(Boolean);
 }
 
+const poiSymbols = {
+  school: '🏫',
+};
+
 function drawPOIs(state, layer, pois) {
   const phases = new Set();
   const optionsFor = kind =>
-      ({icon: L.divIcon({className: `marker-poi-${kind}`})});
+      ({icon: L.divIcon({className: `marker-poi`, html: poiSymbols[kind]})});
 
   const markers = pois.map(poi => {
     const marker = L.marker(poi.loc, optionsFor(poi.kind));

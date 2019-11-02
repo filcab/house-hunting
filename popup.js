@@ -35,8 +35,15 @@ function poiPopup(poi) {
   const contents = div('popup-contents');
 
   const name = span('popup-poi-name');
-  name.appendChild(anchor(poi.url, poi.name));
+  if (poi.url)
+    name.appendChild(anchor(poi.url, poi.name));
+  else
+    name.textContent = poi.name;
   contents.appendChild(name);
+
+  const street = span('popup-poi-street');
+  street.textContent = poi.street;
+  contents.appendChild(street);
 
   const type = span('popup-poi-type');
   type.textContent = `${poi.type} — ${poi.phase} (${poi.status})`;
@@ -45,7 +52,7 @@ function poiPopup(poi) {
   const students = span('popup-poi-students');
   // FIXME: If we only have capacity, don't display the rest...
   students.textContent =
-      `Capacity: ${poi.capacity}, 👧${poi.girls} 👦${poi.boys}`;
+      `Capacity: ${Number(poi.girls)+Number(poi.boys)}/${poi.capacity}, 👧${poi.girls} 👦${poi.boys}`;
   contents.appendChild(students);
 
   const ages = span('popup-poi-ages');
@@ -54,8 +61,34 @@ function poiPopup(poi) {
   contents.appendChild(ages);
 
   const ofsted = span('popup-poi-ofsted');
-  ofsted.textContent = `Ofsted: ${poi.ofsted_rating} (${poi.ofsted_last})`;
+  if (poi.ofsted_rating || poi.ofsted_last) {
+    ofsted.textContent = `Ofsted: ${poi.ofsted_rating} (${poi.ofsted_last})`;
+  } else {
+    ofsted.textContent = `No Ofsted data`;
+  }
   contents.appendChild(ofsted);
+
+  if (poi.nursery && poi.nursery !== 'Not applicable') {
+    const nursery = span('popup-poi-nursery');
+    nursery.textContent = poi.nursery;
+    contents.appendChild(nursery);
+  }
+
+  if (poi.religious && poi.religious !== 'Does not apply' &&
+      poi.religious !== 'None') {
+    const religious = span('popup-poi-religious');
+    religious.textContent = poi.religious;
+    contents.appendChild(religious);
+  }
+
+  const links = div('popup-poi-links');
+  const govLink = span('popup-poi-link');
+  govLink.appendChild(anchor(`https://get-information-schools.service.gov.uk/Establishments/Establishment/Details/${poi.urn}`, 'gov.uk'));
+  const ofstedLink = span('popup-poi-link');
+  ofstedLink.appendChild(anchor(`http://www.ofsted.gov.uk/oxedu_providers/full/(urn)/${poi.urn}`, 'ofsted'));
+  links.appendChild(govLink);
+  links.appendChild(ofstedLink);
+  contents.appendChild(links);
 
   return contents;
 }

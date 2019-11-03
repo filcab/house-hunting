@@ -136,12 +136,6 @@ function element(type) {
   return e;
 }
 
-function div(className) {
-  const d = element('div');
-  d.className = className;
-  return d;
-}
-
 function buildSchedule(prefs) {
   const dateOptions = {year: 'numeric', month: '2-digit', day: '2-digit'};
   const timeOptions = {hour: '2-digit', minute: '2-digit'};
@@ -149,18 +143,18 @@ function buildSchedule(prefs) {
   // Our dates are written as ISO strings, starting with year, etc.
   items.sort((a, b) => a[1].localeCompare(b[1]));
 
-  const sched = div('schedule-div');
+  const sched = utils.div('schedule-div');
   let currentDate;
   for (const item of items) {
     const date = new Date(item[1]);
     if (date.toLocaleDateString() !== currentDate) {
       currentDate = date.toLocaleDateString();
-      const dateDiv = div('schedule-date');
+      const dateDiv = utils.div('schedule-date');
       dateDiv.textContent = date.toLocaleDateString(undefined, dateOptions);
       sched.appendChild(dateDiv);
     }
 
-    const timeDiv = div('schedule-time');
+    const timeDiv = utils.div('schedule-time');
     timeDiv.textContent = date.toLocaleTimeString(undefined, timeOptions);
     sched.appendChild(timeDiv);
   }

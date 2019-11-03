@@ -33,7 +33,7 @@ function getAvailableTileLayers() {
 // Only available vector layer type is mapboxGL. Try validating we have webGL
 // before we use it.
 function getAvailableVectorLayers() {
-  if (!isWebGLAvailable() || (false && !canFetchMapTiler()))
+  if (!utils.isWebGLAvailable() || (false && !canFetchMapTiler()))
     return [];
 
   // Add UK Ordnance Survey maps, display using mapboxGL

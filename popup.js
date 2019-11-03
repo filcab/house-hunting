@@ -1,66 +1,37 @@
 'use strict';
 
-function element(type) {
-  const e = document.createElement(type);
-  return e;
-}
-
-function div(className) {
-  const d = element('div');
-  d.className = className;
-  return d;
-}
-
-function span(className) {
-  const s = element('span');
-  s.className = className;
-  return s;
-}
-
-function img(url) {
-  const i = element('img');
-  i.src = url;
-  return i;
-}
-
-function anchor(url, text) {
-  const a = element('a');
-  a.textContent = text;
-  a.setAttribute('href', url);
-  return a;
-}
-
 function poiPopup(poi) {
+  console.log('popup for poi', poi);
   // TODO: Maybe switch on .kind
-  const contents = div('popup-contents');
+  const contents = utils.div('popup-contents');
 
-  const name = span('popup-poi-name');
+  const name = utils.span('popup-poi-name');
   if (poi.url)
-    name.appendChild(anchor(poi.url, poi.name));
+    name.appendChild(utils.anchor(poi.url, poi.name));
   else
     name.textContent = poi.name;
   contents.appendChild(name);
 
-  const street = span('popup-poi-street');
+  const street = utils.span('popup-poi-street');
   street.textContent = poi.street;
   contents.appendChild(street);
 
-  const type = span('popup-poi-type');
+  const type = utils.span('popup-poi-type');
   type.textContent = `${poi.type} — ${poi.phase} (${poi.status})`;
   contents.appendChild(type);
 
-  const students = span('popup-poi-students');
+  const students = utils.span('popup-poi-students');
   // FIXME: If we only have capacity, don't display the rest...
   students.textContent =
       `Capacity: ${Number(poi.girls)+Number(poi.boys)}/${poi.capacity}, 👧${poi.girls} 👦${poi.boys}`;
   contents.appendChild(students);
 
-  const ages = span('popup-poi-ages');
+  const ages = utils.span('popup-poi-ages');
   // FIXME: If we only have capacity, don't display the rest...
   ages.textContent = `Ages: ${poi.age_low}-${poi.age_high}`;
   contents.appendChild(ages);
 
-  const ofsted = span('popup-poi-ofsted');
+  const ofsted = utils.span('popup-poi-ofsted');
   if (poi.ofsted_rating || poi.ofsted_last) {
     ofsted.textContent = `Ofsted: ${poi.ofsted_rating} (${poi.ofsted_last})`;
   } else {
@@ -69,23 +40,23 @@ function poiPopup(poi) {
   contents.appendChild(ofsted);
 
   if (poi.nursery && poi.nursery !== 'Not applicable') {
-    const nursery = span('popup-poi-nursery');
+    const nursery = utils.span('popup-poi-nursery');
     nursery.textContent = poi.nursery;
     contents.appendChild(nursery);
   }
 
   if (poi.religious && poi.religious !== 'Does not apply' &&
       poi.religious !== 'None') {
-    const religious = span('popup-poi-religious');
+    const religious = utils.span('popup-poi-religious');
     religious.textContent = poi.religious;
     contents.appendChild(religious);
   }
 
-  const links = div('popup-poi-links');
-  const govLink = span('popup-poi-link');
-  govLink.appendChild(anchor(`https://get-information-schools.service.gov.uk/Establishments/Establishment/Details/${poi.urn}`, 'gov.uk'));
-  const ofstedLink = span('popup-poi-link');
-  ofstedLink.appendChild(anchor(`http://www.ofsted.gov.uk/oxedu_providers/full/(urn)/${poi.urn}`, 'ofsted'));
+  const links = utils.div('popup-poi-links');
+  const govLink = utils.span('popup-poi-link');
+  govLink.appendChild(utils.anchor(`https://get-information-schools.service.gov.uk/Establishments/Establishment/Details/${poi.urn}`, 'gov.uk'));
+  const ofstedLink = utils.span('popup-poi-link');
+  ofstedLink.appendChild(utils.anchor(`http://www.ofsted.gov.uk/oxedu_providers/full/(urn)/${poi.urn}`, 'ofsted'));
   links.appendChild(govLink);
   links.appendChild(ofstedLink);
   contents.appendChild(links);
@@ -97,8 +68,8 @@ function poiPopup(poi) {
 // The function will create a span with the first class and the passed
 // textContent. Then place than in another span, with the next class, etc.
 function emojiCheckbox(name, textContent, nestedSpanClasses, onChange) {
-  const checkbox = element('label');
-  const buttonInput = element('input');
+  const checkbox = utils.element('label');
+  const buttonInput = utils.element('input');
   buttonInput.type = 'checkbox';
   buttonInput.className = 'hide-checkbox';
   buttonInput.name = name;
@@ -107,7 +78,7 @@ function emojiCheckbox(name, textContent, nestedSpanClasses, onChange) {
 
   let buttonText = document.createTextNode(textContent);
   nestedSpanClasses.forEach(function(className) {
-    const newElement = span(className);
+    const newElement = utils.span(className);
     newElement.appendChild(buttonText);
     buttonText = newElement;
   });
@@ -142,7 +113,7 @@ async function setupPostCodeInfo(elem, p) {
   if (query_result && query_result.status == 200 && query_result.result) {
     const first_result = query_result.result[0];
     const code = first_result.postcode;
-    const link = anchor(mapsPostcodeLink(code), code);
+    const link = utils.anchor(mapsPostcodeLink(code), code);
     elem.appendChild(link);
     elem.style.display = 'block';
   }
@@ -256,11 +227,11 @@ function formatDate(date) {
 // Function that builds a popup for a marker.
 function propertyPopup(state, marker) {
   const prop = marker.property;
-  const contents = div('popup-contents');
+  const contents = utils.div('popup-contents');
 
   const args = arguments;
   if (prop.editable) {
-    const button = element('button');
+    const button = utils.element('button');
     button.textContent = 'edit!';
     button.addEventListener('click', function(ev) {
       const newElem =
@@ -270,39 +241,39 @@ function propertyPopup(state, marker) {
     contents.appendChild(button);
   }
 
-  const photos = div('popup-photos');
+  const photos = utils.div('popup-photos');
   contents.appendChild(photos);
-  const mainPhoto = div('popup-photos-main');
+  const mainPhoto = utils.div('popup-photos-main');
   if (prop.imgs && prop.imgs[0]) {
-    mainPhoto.appendChild(img(prop.imgs[0]));
+    mainPhoto.appendChild(utils.img(prop.imgs[0]));
     photos.appendChild(mainPhoto);
     if (prop.imgs.length == 1) {
       // Cheat and make this take the whole width since we only have a single
       // photo
       mainPhoto.style.width = '100%';
     } else {
-      const otherPhotos = div('popup-photos-other');
+      const otherPhotos = utils.div('popup-photos-other');
       if (prop.imgs && prop.imgs[1])
-        otherPhotos.appendChild(img(prop.imgs[1]));
+        otherPhotos.appendChild(utils.img(prop.imgs[1]));
       if (prop.imgs && prop.imgs[2])
-        otherPhotos.appendChild(img(prop.imgs[2]));
+        otherPhotos.appendChild(utils.img(prop.imgs[2]));
       photos.appendChild(otherPhotos);
     }
   }
 
-  const priceAndPhone = div('popup-price-and-phone');
-  const price = span('popup-price');
+  const priceAndPhone = utils.div('popup-price-and-phone');
+  const price = utils.span('popup-price');
   const priceStr =
       `${prop.price.display}${prop.price.qual ? ' ' + prop.price.qual : ''}`;
   price.textContent = priceStr;
   priceAndPhone.appendChild(price);
 
-  const spacer = span('popup-spacer');
+  const spacer = utils.span('popup-spacer');
   priceAndPhone.appendChild(spacer);
 
   if (prop.agent) {
-    const phone = span('popup-phone');
-    const phoneLink = element('a');
+    const phone = utils.span('popup-phone');
+    const phoneLink = utils.element('a');
     phoneLink.textContent = prop.agent.phone;
     phoneLink.href = `tel:${prop.agent.phone.replace(/ +/g, '')}`;
     phoneLink.appendChild(phone);
@@ -310,36 +281,35 @@ function propertyPopup(state, marker) {
   }
   contents.appendChild(priceAndPhone);
 
-  const info = div('popup-info');
+  const info = utils.div('popup-info');
   contents.appendChild(info);
 
   if (prop.agent) {
     if (prop.agent.logo) {
-      const agentLogo = element('img');
+      const agentLogo = utils.img(prop.agent.logo);
       agentLogo.className = 'popup-agent-logo';
-      agentLogo.src = prop.agent.logo;
       info.appendChild(agentLogo);
     } else {
-      const agentName = span('popup-agent-name');
+      const agentName = utils.span('popup-agent-name');
       agentName.textContent = prop.agent.name;
       info.appendChild(agentName);
     }
   }
 
-  const description = div('popup-description');
-  description.appendChild(anchor(prop.url, prop.desc));
+  const description = utils.div('popup-description');
+  description.appendChild(utils.anchor(prop.url, prop.desc));
   info.appendChild(description);
 
-  const location = div('popup-location');
-  location.appendChild(anchor(mapsLink(prop.loc), prop.addr));
+  const location = utils.div('popup-location');
+  location.appendChild(utils.anchor(mapsLink(prop.loc), prop.addr));
   info.appendChild(location);
 
-  const postcode = div('popup-postcode');
+  const postcode = utils.div('popup-postcode');
   postcode.style.display = 'hidden';
   setupPostCodeInfo(postcode, prop);
   info.appendChild(postcode);
 
-  const notesInput = element('textarea');
+  const notesInput = utils.element('textarea');
   notesInput.classList.add('popup-notes');
   notesInput.rows = 2;
   notesInput.placeholder = 'Notes';
@@ -349,8 +319,8 @@ function propertyPopup(state, marker) {
   });
   info.appendChild(notesInput);
 
-  const interactiveSection = div('popup-interactive');
-  const dateInput = element('input');
+  const interactiveSection = utils.div('popup-interactive');
+  const dateInput = utils.element('input');
   dateInput.type = 'datetime-local';
   dateInput.step = 15*60;
   if (prop.scheduled)
@@ -375,7 +345,7 @@ function propertyPopup(state, marker) {
   interactiveSection.appendChild(dateInput);
 
 
-  const buttons = span('popup-buttons');
+  const buttons = utils.span('popup-buttons');
   const scheduledCheckbox = emojiCheckbox(
       'scheduled', '📅', ['checkbox-scheduled', 'emoji-checkbox'],
       scheduledHandler.bind(null, state, prop, dateInput))
@@ -410,19 +380,19 @@ function propertyPopup(state, marker) {
 }
 
 function addPropertyPopup(state, popup, coords, maybeProp) {
-  const contents = div('popup-contents');
+  const contents = utils.div('popup-contents');
 
-  const header = div('save-popup-warning');
+  const header = utils.div('save-popup-warning');
   contents.appendChild(header);
-  const nameInput = element('input');
+  const nameInput = utils.element('input');
   nameInput.style.display = 'block';
   nameInput.placeholder = 'Name';
   contents.appendChild(nameInput);
-  const streetInput = element('input');
+  const streetInput = utils.element('input');
   streetInput.style.display = 'block';
   streetInput.placeholder = 'Street';
   contents.appendChild(streetInput);
-  const priceInput = element('input');
+  const priceInput = utils.element('input');
   priceInput.style.display = 'block';
   priceInput.type = 'number';
   priceInput.inputmode = 'numeric';
@@ -431,21 +401,21 @@ function addPropertyPopup(state, popup, coords, maybeProp) {
   priceInput.max = 1000000;
   priceInput.step = 500;
   contents.appendChild(priceInput);
-  const phoneInput = element('input');
+  const phoneInput = utils.element('input');
   phoneInput.style.display = 'block';
   phoneInput.type = 'tel';
   phoneInput.placeholder = 'Phone';
   contents.appendChild(phoneInput);
-  const agentInput = element('input');
+  const agentInput = utils.element('input');
   agentInput.style.display = 'block';
   agentInput.placeholder = 'Agent';
   contents.appendChild(agentInput);
-  const notesInput =  element('textarea');
+  const notesInput =  utils.element('textarea');
   notesInput.style.display = 'block';
   notesInput.placeholder = 'Notes';
   contents.appendChild(notesInput);
 
-  const saveButton = element('button');
+  const saveButton = utils.element('button');
   saveButton.textContent = 'Save';
 
   console.log('maybeProp:', maybeProp);

@@ -142,10 +142,44 @@ html, body {
   font-size: 400%;
 }
 
+/* text markers */
+/* from https://codepen.io/gisminister/pen/JKGLOm */
+/*Wraperclass for the divicon*/
+.marker-label {
+  position: absolute;
+  bottom: 0;left: -50%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+/*Wrap the content of the divicon (text) in this class*/
+.marker-label-content {
+  order: 1;
+  position: relative; left: -50%;
+  background-color: #fff;
+  border-radius: 5px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #444;
+  white-space: nowrap;
+}
+/*Add this arrow*/
+.marker-label-arrow {
+  order: 2;
+  width: 0px; height: 0px;
+  /* Doesn't seem necessary? :| */
+  /* left: 50%; */
+  border-style: solid;
+  border-color: #444 transparent transparent transparent;
+  border-width: 10px 6px 0 6px; /*[first number is height, second/fourth are rigth/left width]*/
+  margin-left: -6px;
+}
+
 .marker-poi {
   font-size: 150%;
 }
 
+/* variations on leaflet markers */
 .marker-sold {
   filter: grayscale(1) brightness(1.5);
 }

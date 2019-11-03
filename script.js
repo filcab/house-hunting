@@ -42,13 +42,21 @@ const poiSymbols = {
   school: '🏫',
 };
 
+function markerContent(poi) {
+  const marker = utils.div('marker-label');
+  const content = utils.div('marker-label-content', marker);
+  content.textContent = poiSymbols[poi.kind];
+  utils.div('marker-label-arrow', marker);
+  return marker;
+}
+
 function drawPOIs(state, layer, pois) {
   const phases = new Set();
-  const optionsFor = kind =>
-      ({icon: L.divIcon({className: `marker-poi`, html: poiSymbols[kind]})});
+  const optionsFor = poi =>
+      ({icon: L.divIcon({className: `marker-poi`, html: markerContent(poi)})});
 
   const markers = pois.map(poi => {
-    const marker = L.marker(poi.loc, optionsFor(poi.kind));
+    const marker = L.marker(poi.loc, optionsFor(poi));
     marker.bindPopup(poiPopup.bind({}, poi));
     phases.add(poi.phase);
     return marker.addTo(layer);

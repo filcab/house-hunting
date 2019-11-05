@@ -365,17 +365,6 @@ function propertyPopup(state, marker) {
 
   info.appendChild(interactiveSection);
 
-  // Have our inputs stored in an easily accessible object.
-  // The function binding the popup is in charge of deleting this prop.inputs
-  // object when the popup closes to be sure we don't use some outdated inputs.
-  prop.inputs = {
-    ok: okCheckbox.input,
-    ng: ngCheckbox.input,
-    schedule: scheduledCheckbox.input,
-    datetime: dateInput,
-    notes: notesInput,
-  };
-
   return contents;
 }
 

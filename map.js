@@ -176,7 +176,9 @@ function updateMarkerHighlightStyle(state, marker) {
   const highlights = state.prefs.highlights;
   for (const type of ['ng', 'ok', 'scheduled']) {
     const props = highlights[type];
-    const shouldHighlight = props.indexOf(p.id) != -1;
+    // NEWID: TODO: Need to remove the older ID code path
+    let shouldHighlight = props.indexOf(p.id) != -1;
+    shouldHighlight |= props.indexOf(toOldID(p.id)) != -1;
     if (shouldHighlight) {
       marker.getElement().classList.add(`marker-${type}`);
       return;

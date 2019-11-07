@@ -95,8 +95,6 @@ async function OnTheMarket() {
   }
 
   function mergeToCommonFormat(p, div) {
-    const id = parseInt(p.id);
-
     // tag text has a ton of whitespace.
     const tags = div.querySelector('div.flags')
                      .textContent.split(/\r?\n/)
@@ -104,7 +102,7 @@ async function OnTheMarket() {
                      .filter(x => x);
 
     const result = {
-      id: id,
+      id: `OTM${p.id}`,
       imgs: [p['cover-image']],
       price: {display: p.price, qual: p['price-qualifier']},
       url: makeAbsoluteUrl(p['details-url']),
@@ -152,7 +150,7 @@ function RightMove() {
 
     const rmLocToLatLng = loc => ({lat: loc.latitude, lng: loc.longitude});
     return {
-      id: pShortlist.propertyId,
+      id: `RM${pShortlist.propertyId}`,
 
       // From shortlist data
       saved: pShortlist.dateSavedOn,
@@ -291,7 +289,7 @@ async function Zoopla() {
   async function htmlElementToCommonFormat(elem) {
     // TODO: Check "<script type="application/ld+json">" element in details page
     // for each property.
-    const prop = {id: Number(elem.children[0].children[1].value)};
+    const prop = {id: `ZO${elem.children[0].children[1].value}`};
     // Just hard-code it
     prop.tags = [elem.children[1].textContent.trim()];
 

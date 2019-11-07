@@ -5,6 +5,10 @@ document.state = {};
 const isDevSite = window.location.hostname == 'localhost' ||
     window.location.pathname.includes('/dev/');
 
+function toOldID(id) {
+  return String(id).replace(/^[a-zA-Z]\+/, '');
+}
+
 // Some utility functions
 // Promise: Fetch a JSON object, or return an empty array, if not possible to
 // fetch
@@ -133,6 +137,7 @@ function initializeProp(prop) {
 // Assume we can start at 0 and increment and never run into the IDs from the other sites.
 // TODO: Maybe namespace this
 function nextPropId(state) {
+  // NEWID: TODO: Might need to change if we change id format (we might keep manually added props prefix-less)
   const numericIDs = [0, ...state.prefs.manuallyAdded.map(p => p.id)];
   const nextID = Math.max.apply({}, numericIDs) + 1;
   console.assert(isFinite(nextID));
@@ -170,6 +175,31 @@ function buildSchedule(prefs) {
   return sched;
 }
 
+function tryUpgradingPreferencePropIDs(prefs, props) {
+  for (const name in prefs.highlights) {
+    const list = prefs.highlights[name];
+    console.log(name, list);
+    // Clone the list so we can alter the original
+    for (const id of Array.from(list)) {
+      console.log('trying to upgrade', id);
+      for (const prefix of ['RM', 'OTM', 'ZO']) {
+        // Already updated
+        if (Number(id) == 0)
+          continue;
+
+        const newId = `${prefix}${id}`;
+        const idx = list.indexOf(id);
+        const p = props.get(newId);
+        if (idx !== -1 && p !== undefined) {
+          console.log(`upgrading highlight for propid ${id} -> ${newId}`);
+          console.assert(idx != -1);
+          list[idx] = newId;
+        }
+      }
+    }
+  }
+}
+
 async function main(state) {
   adjustTitleIfDev();
 
@@ -190,6 +220,8 @@ async function main(state) {
   const fetchedProps = await fetchMergeJSONArrays(config.data);
   const propList = [...prefs.manuallyAdded, ...fetchedProps];
   const props = new Map(propList.map(prop => [prop.id, initializeProp(prop)]));
+
+  tryUpgradingPreferencePropIDs(prefs, props);
 
   state.props = props;
   console.info('props', props);

@@ -26,16 +26,25 @@ function toggleNamedHighlight(state, prop, name, checked) {
       prefs.highlights[name] || (prefs.highlights[name] = []);
   prefs.highlights[name] = namedHighlights;
   if (checked) {
-    console.assert(namedHighlights.indexOf(prop.id) == -1);
+    // NEWID: TODO: Needs to change if we change id format
+    let wasHighlighted = namedHighlights.indexOf(prop.id) == -1;
+    wasHighlighted |= namedHighlights.indexOf(toOldID(prop.id)) == -1;
+
+    console.assert(wasHighlighted);
     namedHighlights.push(prop.id);
     console.assert(prop.highlights.indexOf(name) == -1);
     prop.highlights.push(name);
   } else {
+    // NEWID: TODO: Needs to change if we change id format
     const idx = namedHighlights.indexOf(prop.id);
+    if (idx == -1)
+      idx = namedHighlights.indexOf(toOldID(prop.id));
     console.assert(idx != -1);
     namedHighlights.splice(idx, 1);
     // Make sure there's no more occurences of prop.id
     console.assert(namedHighlights.indexOf(prop.id) == -1);
+    // NEWID: TODO: Needs to change if we change id format
+    console.assert(namedHighlights.indexOf(toOldID(prop.id)) == -1);
 
     const highlightIdx = prop.highlights.indexOf(name);
     console.assert(highlightIdx != -1);
@@ -47,12 +56,18 @@ function toggleNamedHighlight(state, prop, name, checked) {
 
 function unscheduleVisit(prefs, prop) {
   console.log('Removing visit date');
+  // NEWID: TODO: Needs to change if we change id format
+  // We can just remove both
   delete prefs.scheduled[prop.id];
+  delete prefs.scheduled[toOldID(prop.id)];
   delete prop.scheduled;
 }
 
 function scheduleVisit(prefs, prop, datetime) {
+  // NEWID: TODO: Needs to change if we change id format (at least to check + replace older id format)
   console.log(`Visiting ${prop.id} on ${datetime}`);
+  // NEWID: Make sure we remove the older ID
+  delete prefs.scheduled[toOldID([prop.id])];
   prefs.scheduled[prop.id] = datetime;
   prop.scheduled = datetime;
 }
@@ -64,7 +79,8 @@ function addPropertyManually(state, prop) {
   // It should never happen, but just in case...
   for (const p of state.prefs.manuallyAdded)
     // Make sure it works even if we have some values as strings, others as numbers
-    console.assert(p.id != prop.id && Number(p.id) != Number(prop.id));
+    // NEWID: TODO: Needs to change if we change id format
+    console.assert(p.id != prop.id);
 
   state.prefs.manuallyAdded.push(prop);
   const marker = addProperty(state, prop, propertyPopup.bind({}, state));
@@ -79,18 +95,36 @@ function addPropertyManually(state, prop) {
 }
 
 function getPropertyNotes(state, prop) {
-  const notes = state.prefs.notes[Number(prop.id)] || '';
+  // NEWID: TODO: Needs to change if we change id format
+  let notes = state.prefs.notes[prop.id];
+  if (notes === undefined) {
+    // auto-upgrade + delete old version
+    notes = state.prefs.notes[toOldID(prop.id)];
+    delete state.prefs.notes[toOldID(prop.id)];
+  }
+
+  if (notes === undefined)
+    notes = '';
+  else
+    // NEWID: Save to updated ID unless we have empty notes (just created)
+    state.prefs.notes[prop.id] = notes;
+
   return notes;
 }
 
 // Returns true if preferences were saved
 function setPropertyNotes(state, prop, notes) {
-  const id = Number(prop.id);
+  // NEWID: TODO: Needs to change if we change id format
+  const id = prop.id;
   const trimmed = notes.trim();
   const propNotes = state.prefs.notes;
   if (propNotes[id] == trimmed)
     // No change
     return false;
+
+  if (propNotes[toOldID(id)] !== undefined)
+    delete propNotes[toOldID(id)];
+
   propNotes[id] = trimmed;
   savePreferences(state.prefs);
   return true;

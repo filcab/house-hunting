@@ -99,7 +99,7 @@ def main():
         loc = postcodes.get_loc(pc)
         obj = {'kind': 'school'}
         obj['urn'] = school['URN']
-        obj['id'] = obj['urn']
+        obj['id'] = 'URN{}'.format(obj['urn'])
         obj['name'] = school['EstablishmentName']
         obj['status'] = school['EstablishmentStatus (name)']
         obj['type'] = school['TypeOfEstablishment (name)']

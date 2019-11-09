@@ -6,7 +6,7 @@ const isDevSite = window.location.hostname == 'localhost' ||
     window.location.pathname.includes('/dev/');
 
 function toOldID(id) {
-  return String(id).replace(/^[a-zA-Z]\+/, '');
+  return String(id).replace(/^[a-z]+/i, '');
 }
 
 // Some utility functions

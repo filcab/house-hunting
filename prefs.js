@@ -74,9 +74,18 @@ function scheduleVisit(prefs, prop, datetime) {
 function getScheduleFor(prefs, prop) {
   // Guarantee prop.id is a string, as we use numbers for manually added
   // properties.
-  const maybeSchedule = prefs.scheduled[String(prop.id)];
-  if (maybeSchedule === undefined)
-    return maybeSchedule;
+  let maybeSchedule = prefs.scheduled[String(prop.id)];
+  if (maybeSchedule === undefined) {
+    // Check old style ID
+    const oldID = toOldID(prop.id);
+    maybeSchedule = prefs.scheduled[Number(oldID)];
+    if (maybeSchedule === undefined)
+      return maybeSchedule;
+
+    // Change to new form of ID
+    delete prefs.scheduled[toOldID(prop.id)];
+    prefs.scheduled[String(prop.id)] = maybeSchedule;
+  }
 
   return new Date(maybeSchedule);
 }

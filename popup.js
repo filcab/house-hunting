@@ -342,12 +342,10 @@ function propertyPopup(state, marker) {
       dateInput.value = formatDate(schedule, true);
   }
   dateInput.classList.add('popup-scheduled-date');
-  const scheduledStartClass = prop.highlights.indexOf('scheduled') == -1 ?
-      'popup-scheduled-date-invisible' :
-      'popup-scheduled-date-visible';
+  const scheduledStartClass = schedule ? 'popup-scheduled-date-visible' :
+                                         'popup-scheduled-date-invisible';
   dateInput.classList.add(scheduledStartClass);
-  const isScheduled = prop.highlights.indexOf('scheduled') != -1;
-  dateInput.disabled = !isScheduled;
+  dateInput.disabled = !schedule;
   dateInput.addEventListener('change', onScheduledDateChange.bind(null, state, prop));
   interactiveSection.appendChild(dateInput);
 
@@ -356,7 +354,7 @@ function propertyPopup(state, marker) {
   const scheduledCheckbox = emojiCheckbox(
       'scheduled', '📅', ['checkbox-scheduled', 'emoji-checkbox'],
       scheduledHandler.bind(null, state, prop, dateInput))
-  scheduledCheckbox.input.checked = isScheduled;
+  scheduledCheckbox.input.checked = !!schedule;
   buttons.appendChild(scheduledCheckbox);
   const okCheckbox = emojiCheckbox(
       'ok', '🆗', ['checkbox-ok', 'emoji-checkbox-faded'],

@@ -173,8 +173,14 @@ function updateMarkerHighlightStyle(state, marker) {
     return;
   }
 
+  const schedule = getScheduleFor(state.prefs, p);
+  if (schedule !== undefined) {
+    marker.getElement().classList.add(`marker-scheduled`);
+    // Don't return. Allow ok/ng to override scheduled class
+  }
+
   const highlights = state.prefs.highlights;
-  for (const type of ['ng', 'ok', 'scheduled']) {
+  for (const type of ['ng', 'ok']) {
     const props = highlights[type];
     // NEWID: TODO: Need to remove the older ID code path
     let shouldHighlight = props.indexOf(p.id) != -1;

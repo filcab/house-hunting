@@ -37,7 +37,6 @@ const Schedule = L.Control.extend({
   },
 
   _minimize: function(ev) {
-    console.assert(!this._scheduleDiv);
     if (this._scheduleDiv) {
       this._toggleVisibility(this._button, this._scheduleDiv);
       // Now delete it so we can easily update it. In the future we won't be

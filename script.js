@@ -59,15 +59,18 @@ function drawPOIs(state, layer, pois) {
   const optionsFor = poi =>
       ({icon: L.divIcon({className: `marker-poi`, html: markerContent(poi)})});
 
-  const markers = pois.map(poi => {
+  const poiMarkers = pois.map(poi => {
     const marker = L.marker(poi.loc, optionsFor(poi));
     marker.bindPopup(poiPopup.bind({}, state, poi, marker));
     phases.add(poi.phase);
+    marker.on('add', layer => {
+      updateMarkerHighlightStyle(state, poi, marker);
+    });
     return marker.addTo(layer);
   });
 
   console.log('phases of schools:', phases);
-  return markers;
+  return poiMarkers;
 }
 
 function drawMarkers(state, map, props) {

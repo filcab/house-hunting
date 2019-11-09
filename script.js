@@ -61,7 +61,7 @@ function drawPOIs(state, layer, pois) {
 
   const markers = pois.map(poi => {
     const marker = L.marker(poi.loc, optionsFor(poi));
-    marker.bindPopup(poiPopup.bind({}, poi));
+    marker.bindPopup(poiPopup.bind({}, state, poi, marker));
     phases.add(poi.phase);
     return marker.addTo(layer);
   });

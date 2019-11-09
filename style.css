@@ -178,22 +178,37 @@ html, body {
 .marker-poi {
   font-size: 150%;
 }
+/* TODO: Please sort this out... */
+.marker-poi.marker-ok,
+.marker-ok .marker-label-content {
+  border-color: lime;
+}
+.marker-ok .marker-label-arrow {
+  border-color: lime transparent transparent transparent;
+}
+.marker-poi.marker-ng,
+.marker-ng .marker-label-content {
+  border-color: red;
+}
+.marker-ng .marker-label-arrow {
+  border-color: red transparent transparent transparent;
+}
 
 /* variations on leaflet markers */
-.marker-sold {
+.marker-property.marker-sold {
   filter: grayscale(1) brightness(1.5);
 }
 
-.marker-scheduled {
+.marker-property.marker-scheduled {
   filter: hue-rotate(180deg);
 }
 
-.marker-ok,
+.marker-property.marker-ok,
 .checkbox-ok {
   filter: hue-rotate(280deg);
 }
 
-.marker-ng,
+.marker-property.marker-ng,
 .checkbox-ng {
   filter: hue-rotate(150deg);
 }

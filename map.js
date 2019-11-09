@@ -153,11 +153,9 @@ function calculatePopupMaxWidth() {
 }
 const popupMaxWidth = calculatePopupMaxWidth();
 
-function updateMarkerHighlightStyle(state, marker) {
+function updateMarkerHighlightStyle(state, obj, marker) {
   const markerClasses =
       ['marker-ok', 'marker-ng', 'marker-sold', 'marker-scheduled'];
-  const p = marker.property;
-  // FIXME: We should be using Leaflet.Icon instead of changing the style!
   // Remove all out marker classes first, then re-add whichever we need
   marker._icon.classList.remove.apply(marker._icon.classList, markerClasses);
 
@@ -168,12 +166,12 @@ function updateMarkerHighlightStyle(state, marker) {
   //   ok
   // We shouldn't really have ok + ng, though
 
-  if (p.tags && p.tags.includes('Sold STC')) {
+  if (obj.tags && obj.tags.includes('Sold STC')) {
     marker.getElement().classList.add('marker-sold');
     return;
   }
 
-  const schedule = getScheduleFor(state.prefs, p);
+  const schedule = getScheduleFor(state.prefs, obj);
   if (schedule !== undefined) {
     marker.getElement().classList.add(`marker-scheduled`);
     // Don't return. Allow ok/ng to override scheduled class
@@ -183,8 +181,8 @@ function updateMarkerHighlightStyle(state, marker) {
   for (const type of ['ng', 'ok']) {
     const props = highlights[type];
     // NEWID: TODO: Need to remove the older ID code path
-    let shouldHighlight = props.indexOf(p.id) != -1;
-    shouldHighlight |= props.indexOf(toOldID(p.id)) != -1;
+    let shouldHighlight = props.indexOf(obj.id) != -1;
+    shouldHighlight |= props.indexOf(toOldID(obj.id)) != -1;
     if (shouldHighlight) {
       marker.getElement().classList.add(`marker-${type}`);
       return;
@@ -198,9 +196,12 @@ function addProperty(state, p, popupFunction) {
   marker.bindPopup(popupFunction, {maxWidth: popupMaxWidth});
   marker.addTo(state.map.leafletMap);
 
+  // Add a class to tag this as a property marker
+  marker._icon.classList.add('marker-property');
+
   // Has to be called only after adding to the map, otherwise we don't have an
   // element/style yet
-  updateMarkerHighlightStyle(state, marker)
+  updateMarkerHighlightStyle(state, p, marker)
 
   return marker;
 }

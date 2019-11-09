@@ -20,37 +20,40 @@ function autoUpgradePreferences(prefs) {
 }
 
 // Changing preferences should always be done via these functions
-function toggleNamedHighlight(state, prop, name, checked) {
+function toggleNamedHighlight(state, obj, name, checked) {
   const prefs = state.prefs;
   const namedHighlights =
       prefs.highlights[name] || (prefs.highlights[name] = []);
   prefs.highlights[name] = namedHighlights;
   if (checked) {
     // NEWID: TODO: Needs to change if we change id format
-    let wasHighlighted = namedHighlights.indexOf(prop.id) == -1;
-    wasHighlighted |= namedHighlights.indexOf(toOldID(prop.id)) == -1;
+    let wasHighlighted = namedHighlights.indexOf(obj.id) == -1;
+    wasHighlighted |= namedHighlights.indexOf(toOldID(obj.id)) == -1;
 
     console.assert(wasHighlighted);
-    namedHighlights.push(prop.id);
-    console.assert(prop.highlights.indexOf(name) == -1);
-    prop.highlights.push(name);
+    namedHighlights.push(obj.id);
+    if (obj.highlights) {
+      console.assert(obj.highlights.indexOf(name) == -1);
+    }
   } else {
     // NEWID: TODO: Needs to change if we change id format
-    const idx = namedHighlights.indexOf(prop.id);
+    const idx = namedHighlights.indexOf(obj.id);
     if (idx == -1)
-      idx = namedHighlights.indexOf(toOldID(prop.id));
+      idx = namedHighlights.indexOf(toOldID(obj.id));
     console.assert(idx != -1);
     namedHighlights.splice(idx, 1);
-    // Make sure there's no more occurences of prop.id
-    console.assert(namedHighlights.indexOf(prop.id) == -1);
+    // Make sure there's no more occurences of obj.id
+    console.assert(namedHighlights.indexOf(obj.id) == -1);
     // NEWID: TODO: Needs to change if we change id format
-    console.assert(namedHighlights.indexOf(toOldID(prop.id)) == -1);
+    console.assert(namedHighlights.indexOf(toOldID(obj.id)) == -1);
 
-    const highlightIdx = prop.highlights.indexOf(name);
-    console.assert(highlightIdx != -1);
-    prop.highlights.splice(highlightIdx, 1);
-    // Make sure there's no more occurences of the highlight name
-    console.assert(prop.highlights.indexOf(name) == -1);
+    if (obj.highlights) {
+      const highlightIdx = obj.highlights.indexOf(name);
+      console.assert(highlightIdx != -1);
+      obj.highlights.splice(highlightIdx, 1);
+      // Make sure there's no more occurences of the highlight name
+      console.assert(obj.highlights.indexOf(name) == -1);
+    }
   }
 }
 

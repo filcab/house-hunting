@@ -1,6 +1,6 @@
 'use strict';
 
-function poiPopup(poi) {
+function poiPopup(state, poi, marker) {
   console.log('popup for poi', poi);
   // TODO: Maybe switch on .kind
   const contents = utils.div('popup-contents');
@@ -61,6 +61,23 @@ function poiPopup(poi) {
   links.appendChild(ofstedLink);
   contents.appendChild(links);
 
+  const interactiveSection = utils.div('popup-interactive');
+
+  const buttons = utils.span('popup-buttons');
+  const okCheckbox = emojiCheckbox(
+      'ok', '🆗', ['checkbox-ok', 'emoji-checkbox-faded'],
+      checkboxHandler.bind(null, state, poi, marker))
+  okCheckbox.input.checked = state.prefs.highlights.ok.indexOf(poi.id) != -1;
+  buttons.appendChild(okCheckbox);
+  const ngCheckbox = emojiCheckbox(
+      'ng', '🆖', ['checkbox-ng', 'emoji-checkbox-faded'],
+      checkboxHandler.bind(null, state, poi, marker));
+  ngCheckbox.input.checked = state.prefs.highlights.ng.indexOf(poi.id) != -1;
+  buttons.appendChild(ngCheckbox);
+  interactiveSection.appendChild(buttons);
+
+  contents.appendChild(interactiveSection);
+
   return contents;
 }
 
@@ -119,15 +136,14 @@ async function setupPostCodeInfo(elem, p) {
   }
 }
 
-function checkboxHandler(state, prop, event) {
+function checkboxHandler(state, obj, marker, event) {
   const highlight_name = event.target.name;
   console.log(
-      `Toggling highlight '${highlight_name}' (checked=${event.target.checked}) for prop ${prop.id} with event`,
+      `Toggling highlight '${highlight_name}' (checked=${event.target.checked}) for obj ${obj.id} with event`,
       event);
-  // FIXME: ugh
   const prefs = state.prefs;
-  toggleNamedHighlight(state, prop, highlight_name, event.target.checked);
-  updateMarkerHighlightStyle(state, prop.marker);
+  toggleNamedHighlight(state, obj, highlight_name, event.target.checked);
+  updateMarkerHighlightStyle(state, obj, marker);
   savePreferences(prefs)
 }
 
@@ -183,8 +199,8 @@ function onScheduledDateChange(state, prop, ev) {
   savePreferences(prefs);
 }
 
-function scheduledHandler(state, prop, input, event) {
-  checkboxHandler(state, prop, event);
+function scheduledHandler(state, prop, marker, input, event) {
+  checkboxHandler(state, prop, marker, event);
 
   // Additionally, deal with the datetime picker
   const toAdd = event.target.checked ? 'popup-scheduled-date-visible' : 'popup-scheduled-date-invisible';
@@ -353,18 +369,18 @@ function propertyPopup(state, marker) {
   const buttons = utils.span('popup-buttons');
   const scheduledCheckbox = emojiCheckbox(
       'scheduled', '📅', ['checkbox-scheduled', 'emoji-checkbox'],
-      scheduledHandler.bind(null, state, prop, dateInput))
+      scheduledHandler.bind(null, state, prop, marker, dateInput))
   scheduledCheckbox.input.checked = !!schedule;
   buttons.appendChild(scheduledCheckbox);
   const okCheckbox = emojiCheckbox(
       'ok', '🆗', ['checkbox-ok', 'emoji-checkbox-faded'],
-      checkboxHandler.bind(null, state, prop))
-  okCheckbox.input.checked = prop.highlights.indexOf('ok') != -1;
+      checkboxHandler.bind(null, state, prop, marker))
+  okCheckbox.input.checked = state.prefs.highlights.ok.indexOf(prop.id) != -1;
   buttons.appendChild(okCheckbox);
   const ngCheckbox = emojiCheckbox(
       'ng', '🆖', ['checkbox-ng', 'emoji-checkbox-faded'],
-      checkboxHandler.bind(null, state, prop));
-  ngCheckbox.input.checked = prop.highlights.indexOf('ng') != -1;
+      checkboxHandler.bind(null, state, prop, marker));
+  ngCheckbox.input.checked = state.prefs.highlights.ng.indexOf(prop.id) != -1;
   buttons.appendChild(ngCheckbox);
   interactiveSection.appendChild(buttons);
 

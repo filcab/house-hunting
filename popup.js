@@ -160,11 +160,16 @@ function onScheduledDateChange(state, prop, ev) {
   const datetime = ev.target.value;
   const prefs = state.prefs;
   if (datetime) {
-    const parsedDate = myDateParse(ev.target.value);
-    console.log(`date: ${parsedDate}`);
-    if (parsedDate.result != 'ok') {
-      alert(`${parsedDate.result}: ${parsedDate.error}`);
-      return;
+    let parsedDate;
+    if (ev.target.type === 'datetime-local') {
+      parsedDate = {result: 'ok', date: datetime};
+    } else {
+      parsedDate = myDateParse(ev.target.value);
+      console.log(`date: ${parsedDate}`);
+      if (parsedDate.result != 'ok') {
+        alert(`${parsedDate.result}: ${parsedDate.error}`);
+        return;
+      }
     }
 
     const date = roundedDate(parsedDate.date);
@@ -323,16 +328,18 @@ function propertyPopup(state, marker) {
   const dateInput = utils.element('input');
   dateInput.type = 'datetime-local';
   dateInput.step = 15*60;
-  if (prop.scheduled)
-    dateInput.value = dateForDatetimeInput(prop.scheduled);
+
+  const schedule = getScheduleFor(state.prefs, prop);
+  if (schedule)
+    dateInput.value = dateForDatetimeInput(schedule);
 
   if (dateInput.type == 'text') {
     // Add placeholder text in Safari for macOS. In that browser, the input type
     // is not changed, as it doesn't support datetime-local (nor datetime)
     dateInput.placeholder = formatRoundedDate(new Date());
 
-    if (prop.scheduled)
-      dateInput.value = formatDate(prop.scheduled, true);
+    if (schedule)
+      dateInput.value = formatDate(schedule, true);
   }
   dateInput.classList.add('popup-scheduled-date');
   const scheduledStartClass = prop.highlights.indexOf('scheduled') == -1 ?

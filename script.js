@@ -108,20 +108,13 @@ function applyPreferencesToProperties(prefs, props) {
   }
 
   const subsequentlyRemoved = [];
-  for (const [idString, date] of Object.entries(prefs.scheduled)) {
-    // Assume well-formed
-    const id = Number(idString);
-    if (!props.has(id)) {
+  for (const [id, date] of Object.entries(prefs.scheduled)) {
+    // Assume well-formed. Force string as manually added properties are
+    // integers for ease of applying max/min.
+    if (!props.has(String(id))) {
       subsequentlyRemoved.push(id);
       continue;
     }
-
-    // Assume dates are ok (they should be if we've set them)
-    // Not much we can do: keys in JSON *must* be strings
-    // I'm unsure what the best practices are in JS. For now, handling this
-    // manually by converting what we get from keys from preferences into
-    // numbers to get props by ID.
-    props.get(id).scheduled = new Date(date);
   }
 
   // FIXME: For now, there's not much a user can do... fix it

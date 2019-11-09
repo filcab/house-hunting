@@ -68,8 +68,17 @@ function scheduleVisit(prefs, prop, datetime) {
   console.log(`Visiting ${prop.id} on ${datetime}`);
   // NEWID: Make sure we remove the older ID
   delete prefs.scheduled[toOldID([prop.id])];
-  prefs.scheduled[prop.id] = datetime;
-  prop.scheduled = datetime;
+  prefs.scheduled[String(prop.id)] = datetime;
+}
+
+function getScheduleFor(prefs, prop) {
+  // Guarantee prop.id is a string, as we use numbers for manually added
+  // properties.
+  const maybeSchedule = prefs.scheduled[String(prop.id)];
+  if (maybeSchedule === undefined)
+    return maybeSchedule;
+
+  return new Date(maybeSchedule);
 }
 
 function addPropertyManually(state, prop) {

@@ -34,6 +34,16 @@ const utils = {
     return a;
   },
 
+  groupBy: function(array, propertyName) {
+    const result = {};
+    for (const elem of array) {
+      const key = elem[propertyName];
+      result[key] = result[key] || [];
+      result[key].push(elem);
+    }
+    return result;
+  },
+
   // Function based on MDN's example:
   // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/By_example/Detect_WebGL
   isWebGLAvailable: function() {

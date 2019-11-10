@@ -54,23 +54,52 @@ function markerContent(poi) {
   return marker;
 }
 
-function drawPOIs(state, layer, pois) {
-  const phases = new Set();
+function drawPOIs(state, pois) {
+  const layers = {};
+  const poiMarkers = new Map();
   const optionsFor = poi =>
       ({icon: L.divIcon({className: `marker-poi`, html: markerContent(poi)})});
 
-  const poiMarkers = pois.map(poi => {
-    const marker = L.marker(poi.loc, optionsFor(poi));
-    marker.bindPopup(poiPopup.bind({}, state, poi, marker));
-    phases.add(poi.phase);
-    marker.on('add', layer => {
-      updateMarkerHighlightStyle(state, poi, marker);
-    });
-    return marker.addTo(layer);
-  });
+  const groupedPois = utils.groupBy(pois, 'kind');
+  // Further group schools by phase
+  groupedPois.school = utils.groupBy(groupedPois.school, 'phase')
 
-  console.log('phases of schools:', phases);
-  return poiMarkers;
+  for (const [kind, group] of Object.entries(groupedPois)) {
+    if (Array.isArray(group)) {
+      // No subgroups
+      const layer = L.layerGroup([]);
+      for (const obj of objs) {
+        const marker = L.marker(obj.loc, optionsFor(obj));
+        marker.bindPopup(poiPopup.bind({}, state, obj, marker));
+        marker.on('add', layer => {
+          updateMarkerHighlightStyle(state, obj, marker);
+        });
+        marker.addTo(layer);
+        poiMarkers.set(obj.id, marker.addTo(layer));
+      }
+      console.assert(layers[kind] === undefined);
+      layers[kind] = layer;
+    } else {
+      for (const [subgroup, objs] of Object.entries(group)) {
+        const name =
+            `${kind.charAt(0).toUpperCase() + kind.slice(1)} - ${subgroup}`;
+        const layer = L.layerGroup([]);
+        for (const obj of objs) {
+          const marker = L.marker(obj.loc, optionsFor(obj));
+          marker.bindPopup(poiPopup.bind({}, state, obj, marker));
+          marker.on('add', layer => {
+            updateMarkerHighlightStyle(state, obj, marker);
+          });
+          marker.addTo(layer);
+          poiMarkers.set(obj.id, marker.addTo(layer));
+        }
+        console.assert(layers[name] === undefined);
+        layers[name] = layer;
+      }
+    }
+  }
+
+  return layers;
 }
 
 function drawMarkers(state, map, props) {
@@ -237,10 +266,10 @@ async function main(state) {
   fitToMarkers(map, markers.concat(Array.from(areaMarkers.values())));
 
   // For now, all POIs are the same. Afterwards, we'll split them into different types
-  const poisLayer = L.layerGroup([]);
   const poisArray = await fetchMergeJSONArrays(config.pois);
-  const pois = drawPOIs(state, poisLayer, poisArray);
-  map.layersControl.addOverlay(poisLayer, "POIs");
+  const poisLayers = drawPOIs(state, poisArray);
+  for (const [name, layer] of Object.entries(poisLayers))
+    map.layersControl.addOverlay(layer, name);
 
   map.scheduleControl =
       L.control.schedule({builder: buildSchedule.bind({}, prefs)})

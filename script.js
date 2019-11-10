@@ -57,8 +57,13 @@ function markerContent(poi) {
 function drawPOIs(state, pois) {
   const layers = {};
   const poiMarkers = new Map();
-  const optionsFor = poi =>
-      ({icon: L.divIcon({className: `marker-poi`, html: markerContent(poi)})});
+  const optionsFor = poi => ({
+    icon: L.divIcon({
+      className: `marker-poi`,
+      html: markerContent(poi),
+      iconAnchor: L.point(0, 0)
+    })
+  });
 
   const groupedPois = utils.groupBy(pois, 'kind');
   // Further group schools by phase

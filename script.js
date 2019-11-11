@@ -54,16 +54,26 @@ function markerContent(poi) {
   return marker;
 }
 
-function drawPOIs(state, pois) {
-  const layers = {};
-  const poiMarkers = new Map();
-  const optionsFor = poi => ({
+function poiMarker(state, poi) {
+  const options = {
     icon: L.divIcon({
       className: `marker-poi`,
       html: markerContent(poi),
       iconAnchor: L.point(0, 0)
     })
+  };
+
+  const marker = L.marker(poi.loc, options);
+  marker.bindPopup(poiPopup.bind({}, state, poi, marker));
+  marker.on('add', layer => {
+    updateMarkerHighlightStyle(state, poi, marker);
   });
+  return marker;
+}
+
+function drawPOIs(state, pois) {
+  const layers = {};
+  const poiMarkers = new Map();
 
   const groupedPois = utils.groupBy(pois, 'kind');
   // Further group schools by phase
@@ -72,13 +82,10 @@ function drawPOIs(state, pois) {
   for (const [kind, group] of Object.entries(groupedPois)) {
     if (Array.isArray(group)) {
       // No subgroups
+      console.assert(group.length > 0);
       const layer = L.layerGroup([]);
-      for (const obj of objs) {
-        const marker = L.marker(obj.loc, optionsFor(obj));
-        marker.bindPopup(poiPopup.bind({}, state, obj, marker));
-        marker.on('add', layer => {
-          updateMarkerHighlightStyle(state, obj, marker);
-        });
+      for (const obj of group) {
+        const marker = poiMarker(state, obj);
         marker.addTo(layer);
         poiMarkers.set(obj.id, marker.addTo(layer));
       }
@@ -90,11 +97,7 @@ function drawPOIs(state, pois) {
             `${kind.charAt(0).toUpperCase() + kind.slice(1)} - ${subgroup}`;
         const layer = L.layerGroup([]);
         for (const obj of objs) {
-          const marker = L.marker(obj.loc, optionsFor(obj));
-          marker.bindPopup(poiPopup.bind({}, state, obj, marker));
-          marker.on('add', layer => {
-            updateMarkerHighlightStyle(state, obj, marker);
-          });
+          const marker = poiMarker(state, obj);
           marker.addTo(layer);
           poiMarkers.set(obj.id, marker.addTo(layer));
         }

@@ -144,7 +144,7 @@ function checkboxHandler(state, obj, marker, event) {
   const prefs = state.prefs;
   toggleNamedHighlight(state, obj, highlight_name, event.target.checked);
   updateMarkerHighlightStyle(state, obj, marker);
-  savePreferences(prefs)
+  savePreferences(prefs);
 }
 
 // Please don't use this
@@ -200,6 +200,14 @@ function onScheduledDateChange(state, prop, ev) {
 }
 
 function scheduledHandler(state, prop, marker, input, event) {
+  if (event.target.checked) {
+    const date = roundedDate(new Date());
+    // schedule immediately with the current time
+    scheduleVisit(state.prefs, prop, date);
+  } else {
+    unscheduleVisit(state.prefs, prop);
+  }
+
   checkboxHandler(state, prop, marker, event);
 
   // Additionally, deal with the datetime picker

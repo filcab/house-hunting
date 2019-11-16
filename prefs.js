@@ -49,10 +49,11 @@ function toggleNamedHighlight(state, obj, name, checked) {
 
     if (obj.highlights) {
       const highlightIdx = obj.highlights.indexOf(name);
-      console.assert(highlightIdx != -1);
-      obj.highlights.splice(highlightIdx, 1);
-      // Make sure there's no more occurences of the highlight name
-      console.assert(obj.highlights.indexOf(name) == -1);
+      if (highlightIdx != -1) {
+        obj.highlights.splice(highlightIdx, 1);
+        // Make sure there's no more occurences of the highlight name
+        console.assert(obj.highlights.indexOf(name) == -1);
+      }
     }
   }
 }

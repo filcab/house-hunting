@@ -274,8 +274,9 @@ async function main(state) {
   fitToMarkers(map, markers.concat(Array.from(areaMarkers.values())));
 
   // For now, all POIs are the same. Afterwards, we'll split them into different types
-  const poisArray = await fetchMergeJSONArrays(config.pois);
-  const poisLayers = drawPOIs(state, poisArray);
+  const poisArray =
+      config.pois !== undefined ? await fetchMergeJSONArrays(config.pois) : [];
+  const poisLayers = poisArray.length !== 0 ? drawPOIs(state, poisArray) : {};
   for (const [name, layer] of Object.entries(poisLayers))
     map.layersControl.addOverlay(layer, name);
 
